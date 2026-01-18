@@ -1,0 +1,8 @@
+{
+  "name": "AfriLingo AI",
+  "description": "Translator & Language Tutor for African Languages powered by Gemini AI. Learn Ndau, Sena, Changana, Swahili and more.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
