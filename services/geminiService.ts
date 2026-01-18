@@ -1,18 +1,9 @@
 import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 
-// Safely access API key, preventing crashes if process is undefined in browser
-const getApiKey = () => {
-  try {
-    // In Vite/Vercel builds, this should be replaced by the string value if properly configured
-    // or fallback to a check that doesn't throw ReferenceError
-    return typeof process !== 'undefined' ? process.env.API_KEY : '';
-  } catch {
-    return '';
-  }
-};
-
-const apiKey = getApiKey();
-const ai = new GoogleGenAI({ apiKey });
+// The build system (Vite) is configured to replace 'process.env.API_KEY'
+// with the actual string value from the environment variables during build.
+// Always access process.env.API_KEY directly in the constructor.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const TEXT_MODEL = 'gemini-3-flash-preview';
 const VISION_MODEL = 'gemini-2.5-flash-image';
