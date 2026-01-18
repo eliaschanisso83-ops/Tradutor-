@@ -1,30 +1,19 @@
 import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 
-// The build system (Vite) is configured to replace 'process.env.API_KEY'
-// with the actual string value from the environment variables during build.
-// We provide a fallback string to prevent the app from crashing (white screen) immediately 
-// if the key is missing. The API calls will simply fail gracefully later.
-const apiKey = process.env.API_KEY || "MISSING_API_KEY";
-
-// Debug logs to help troubleshoot in browser console
-if (apiKey === "MISSING_API_KEY") {
-  console.warn("AfriLingo: API Key is missing! Check Vercel Environment Variables and Redeploy.");
-} else {
-  console.log("AfriLingo: API Key loaded successfully.");
-}
-
-const ai = new GoogleGenAI({ apiKey });
+// Initialization strictly using process.env.API_KEY as per guidelines.
+// Ensure your build tool (Vite) defines 'process.env.API_KEY'.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const TEXT_MODEL = 'gemini-3-flash-preview';
 const VISION_MODEL = 'gemini-2.5-flash-image';
 const AUDIO_MODEL = 'gemini-2.5-flash-native-audio-preview-12-2025';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 
-// Helper to clean Markdown code blocks safely without using backtick regex literals
+// Helper to clean Markdown code blocks safely
 const cleanJsonOutput = (text: string): string => {
   if (!text) return '{}';
   let clean = text.trim();
-  // Remove ```json and ``` using string replacement to avoid tokenizer issues
+  // Remove ```json and ``` using string replacement
   if (clean.startsWith('```json')) {
     clean = clean.substring(7);
   } else if (clean.startsWith('```')) {
@@ -75,7 +64,8 @@ export const translateText = async (
     };
   } catch (error) {
     console.error("Translation error:", error);
-    return { translated: "Check API Key configuration.", pronunciation: "" };
+    // Provide a more specific error if possible, or fall back to generic
+    return { translated: "Error: Check API Key or Connection.", pronunciation: "" };
   }
 };
 
