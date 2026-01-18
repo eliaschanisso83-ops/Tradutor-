@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
     <title>AfriLingo AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
       body {
         font-family: 'Outfit', sans-serif;
-        background-color: #f8f9fa;
+        background-color: #fdfbf7; /* Warm off-white */
+        color: #1f2937;
       }
       /* Hide scrollbar for clean UI in horizontal lists */
       .no-scrollbar::-webkit-scrollbar {
@@ -20,25 +21,36 @@
         scrollbar-width: none;
       }
       
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
+      /* Subtle animated background gradient */
+      .bg-gradient-animate {
+        background: linear-gradient(-45deg, #fffbeb, #fef3c7, #f0fdf4, #fff7ed);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
       }
-      .animate-blob {
-        animation: blob 7s infinite;
+
+      @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
       }
-      .animation-delay-2000 {
-        animation-delay: 2s;
+      
+      .glass {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
       }
-      .animation-delay-4000 {
-        animation-delay: 4s;
+      
+      .glass-dark {
+        background: rgba(31, 41, 55, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
-      .glass-panel {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+
+      /* Smooth interactions */
+      .tap-highlight-transparent {
+        -webkit-tap-highlight-color: transparent;
       }
     </style>
     <script>
@@ -47,15 +59,25 @@
           extend: {
             colors: {
               afri: {
-                primary: '#D97706', // Ochre/Terracotta
-                secondary: '#166534', // Forest Green
-                dark: '#1F2937',
-                light: '#FFFBEB',
-                accent: '#7C2D12'
+                primary: '#D97706', // Ochre
+                secondary: '#15803d', // Deep Green
+                accent: '#9a3412', // Burnt Orange
+                surface: '#ffffff',
+                subtle: '#f3f4f6'
               }
             },
+            boxShadow: {
+              'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+              'glow': '0 0 15px rgba(217, 119, 6, 0.3)',
+            },
             animation: {
-              'bounce-slow': 'bounce 3s infinite',
+              'float': 'float 6s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              }
             }
           }
         }
@@ -65,15 +87,17 @@
 {
   "imports": {
     "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3"
+    "react-dom/": "https://esm.sh/react-dom@18.3.1/",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react/": "https://esm.sh/react@18.3.1/",
+    "react": "https://esm.sh/react@18.3.1",
+    "lucide-react": "https://esm.sh/lucide-react@0.344.0?external=react,react-dom"
   }
 }
 </script>
 </head>
-  <body>
-    <div id="root"></div>
+  <body class="bg-gradient-animate min-h-screen tap-highlight-transparent">
+    <div id="root" class="h-screen w-screen overflow-hidden"></div>
     <script type="module" src="./index.tsx"></script>
   </body>
 </html>

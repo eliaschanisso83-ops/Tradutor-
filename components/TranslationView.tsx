@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SUPPORTED_LANGUAGES } from '../constants';
 import { translateText, translateImage, translateAudio, generateSpeech } from '../services/geminiService';
 import { Language } from '../types';
+import { Mic, StopCircle, Image as ImageIcon, Sparkles, Copy, Check, Volume2, ArrowRightLeft, X, Loader2 } from 'lucide-react';
 
-// Helper to decode base64 string
+// Audio decoding helpers remain the same
 function decode(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
@@ -14,22 +15,13 @@ function decode(base64: string) {
   return bytes;
 }
 
-// Helper to convert raw PCM data to AudioBuffer
-async function decodeAudioData(
-  data: Uint8Array,
-  ctx: AudioContext,
-  sampleRate: number = 24000,
-  numChannels: number = 1,
-): Promise<AudioBuffer> {
+async function decodeAudioData(data: Uint8Array, ctx: AudioContext): Promise<AudioBuffer> {
   const dataInt16 = new Int16Array(data.buffer);
-  const frameCount = dataInt16.length / numChannels;
-  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
-
-  for (let channel = 0; channel < numChannels; channel++) {
-    const channelData = buffer.getChannelData(channel);
-    for (let i = 0; i < frameCount; i++) {
-      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
-    }
+  const frameCount = dataInt16.length;
+  const buffer = ctx.createBuffer(1, frameCount, 24000);
+  const channelData = buffer.getChannelData(0);
+  for (let i = 0; i < frameCount; i++) {
+    channelData[i] = dataInt16[i] / 32768.0;
   }
   return buffer;
 }
@@ -48,7 +40,9 @@ const TranslationView: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  // Text Translation Handler
+  // ... (Keep existing handlers: handleTranslateText, handleImageUpload, startRecording, stopRecording) ...
+  // Re-implementing them briefly to ensure context is kept
+  
   const handleTranslateText = async () => {
     if (!inputText.trim()) return;
     setLoading(true);
@@ -57,11 +51,9 @@ const TranslationView: React.FC = () => {
     setLoading(false);
   };
 
-  // Image Handler
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setLoading(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -73,44 +65,31 @@ const TranslationView: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  // Audio Recording Handler
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
+      mediaRecorder.ondataavailable = (event) => { if (event.data.size > 0) audioChunksRef.current.push(event.data); };
       mediaRecorder.onstop = async () => {
         const mimeType = mediaRecorder.mimeType || 'audio/webm';
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        
         setLoading(true);
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
         reader.onloadend = async () => {
           const base64String = (reader.result as string);
           const base64Audio = base64String.split(',')[1];
-          
           const res = await translateAudio(base64Audio, mimeType, targetLang.name);
           setInputText(res.transcription);
           setResult({ translated: res.translation, pronunciation: '' });
           setLoading(false);
         };
       };
-
       mediaRecorder.start();
       setIsRecording(true);
-    } catch (err) {
-      console.error("Error accessing microphone", err);
-      alert("Could not access microphone.");
-    }
+    } catch (err) { alert("Could not access microphone."); }
   };
 
   const stopRecording = () => {
@@ -130,233 +109,197 @@ const TranslationView: React.FC = () => {
 
   const handleSpeak = async () => {
     if (!result?.translated || isPlaying) return;
-    
     setIsPlaying(true);
     const audioData = await generateSpeech(result.translated);
-    
     if (audioData) {
       try {
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
         const audioBuffer = await decodeAudioData(decode(audioData), audioContext);
-        
         const source = audioContext.createBufferSource();
         source.buffer = audioBuffer;
         source.connect(audioContext.destination);
         source.onended = () => setIsPlaying(false);
         source.start(0);
-      } catch (e) {
-        console.error("Playback error:", e);
-        setIsPlaying(false);
-      }
-    } else {
-      setIsPlaying(false);
-    }
+      } catch (e) { setIsPlaying(false); }
+    } else { setIsPlaying(false); }
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 relative overflow-hidden">
-      {/* Background Blobs */}
-      <div className="absolute top-0 -left-4 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-      <div className="absolute top-0 -right-4 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+    <div className="flex flex-col h-full relative p-4 max-w-4xl mx-auto md:p-8">
+      
+      {/* Language Header */}
+      <div className="flex items-center justify-between gap-4 mb-6 z-10">
+        <div className="flex-1 bg-white shadow-soft rounded-2xl p-2 flex items-center gap-2 cursor-pointer transition-transform hover:scale-[1.02]">
+           <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-2xl shadow-sm">
+             {sourceLang.flag}
+           </div>
+           <select 
+             value={sourceLang.code}
+             onChange={(e) => setSourceLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || sourceLang)}
+             className="bg-transparent font-bold text-gray-700 text-sm md:text-base outline-none w-full appearance-none cursor-pointer"
+           >
+             {SUPPORTED_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.name}</option>)}
+           </select>
+        </div>
 
-      {/* Header / Language Selector */}
-      <div className="bg-white/80 backdrop-blur-md p-4 shadow-sm z-10 sticky top-0 border-b border-gray-100">
-        <div className="flex items-center justify-between gap-2 max-w-2xl mx-auto">
-          <div className="relative flex-1">
-            <select 
-              value={sourceLang.code}
-              onChange={(e) => setSourceLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || sourceLang)}
-              className="w-full appearance-none bg-gray-100 p-3 rounded-xl font-medium text-gray-700 pr-8 focus:ring-2 focus:ring-afri-primary outline-none transition-all"
-            >
-              {SUPPORTED_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.flag} {l.name}</option>)}
-            </select>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
-          </div>
+        <button 
+          className="w-12 h-12 flex items-center justify-center bg-white shadow-soft rounded-full text-gray-400 hover:text-afri-primary hover:rotate-180 transition-all duration-300"
+          onClick={() => {
+            const temp = sourceLang;
+            setSourceLang(targetLang);
+            setTargetLang(temp);
+          }}
+        >
+          <ArrowRightLeft size={20} />
+        </button>
 
-          <button 
-            className="p-3 rounded-full hover:bg-orange-50 text-afri-primary transition-colors"
-            onClick={() => {
-              const temp = sourceLang;
-              setSourceLang(targetLang);
-              setTargetLang(temp);
-            }}
-          >
-            ↔️
-          </button>
-
-          <div className="relative flex-1">
-            <select 
-              value={targetLang.code}
-              onChange={(e) => setTargetLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || targetLang)}
-              className="w-full appearance-none bg-afri-primary text-white p-3 rounded-xl font-medium pr-8 focus:ring-2 focus:ring-orange-300 outline-none shadow-md transition-all"
-            >
-              {SUPPORTED_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.flag} {l.name}</option>)}
-            </select>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/70">▼</div>
-          </div>
+        <div className="flex-1 bg-afri-primary shadow-glow rounded-2xl p-2 flex items-center gap-2 cursor-pointer transition-transform hover:scale-[1.02]">
+           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-2xl shadow-inner backdrop-blur-sm">
+             {targetLang.flag}
+           </div>
+           <select 
+             value={targetLang.code}
+             onChange={(e) => setTargetLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || targetLang)}
+             className="bg-transparent font-bold text-white text-sm md:text-base outline-none w-full appearance-none cursor-pointer"
+           >
+             {SUPPORTED_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.name}</option>)}
+           </select>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 p-4 overflow-y-auto max-w-2xl mx-auto w-full z-0 relative">
+      {/* Main Input Card */}
+      <div className="bg-white rounded-[2rem] shadow-soft overflow-hidden flex flex-col relative transition-all duration-500 border border-white/50">
         
-        {/* Mode Tabs */}
-        <div className="flex gap-2 mb-6 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100">
-          {(['text', 'voice', 'image'] as const).map((m) => (
-             <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-bold capitalize transition-all duration-300 ${
-                mode === m 
-                  ? 'bg-afri-secondary text-white shadow-md transform scale-[1.02]' 
-                  : 'text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              {m === 'text' && '✍️ Text'}
-              {m === 'voice' && '🎤 Voice'}
-              {m === 'image' && '📷 Image'}
-            </button>
-          ))}
-        </div>
-
-        {/* Input Area */}
-        <div className="bg-white rounded-3xl shadow-lg p-5 min-h-[220px] flex flex-col relative border border-gray-50 transition-all duration-300">
-          
+        {/* Input Text Area */}
+        <div className="p-6 relative min-h-[180px]">
           {mode === 'text' && (
             <>
               <textarea
-                className="w-full h-36 resize-none outline-none text-xl text-gray-800 placeholder-gray-300 bg-transparent"
-                placeholder={`Type in ${sourceLang.name}...`}
+                className="w-full h-full resize-none outline-none text-2xl font-medium text-gray-800 placeholder-gray-300 bg-transparent leading-relaxed"
+                placeholder="Enter text here..."
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
               />
               {inputText && (
-                <button 
-                  onClick={() => setInputText('')}
-                  className="absolute top-4 right-4 text-gray-300 hover:text-gray-500"
-                >
-                  ✕
+                <button onClick={() => setInputText('')} className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full text-gray-400 hover:bg-gray-200">
+                  <X size={16} />
                 </button>
               )}
             </>
           )}
 
           {mode === 'voice' && (
-            <div className="flex flex-col items-center justify-center h-48 gap-6">
-               {isRecording ? (
-                 <div className="relative">
-                   {/* Waveform Animation Simulation */}
-                   <div className="flex items-center justify-center gap-1 absolute -top-12 left-1/2 -translate-x-1/2 w-40 h-10">
-                      {[1,2,3,4,5].map(i => (
-                        <div key={i} className="w-1 bg-afri-primary rounded-full animate-bounce" style={{ height: `${Math.random() * 20 + 10}px`, animationDuration: `${Math.random() * 0.5 + 0.5}s` }}></div>
-                      ))}
-                   </div>
-                   
-                   <div className="w-24 h-24 bg-red-50 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-ping opacity-75"></div>
-                   <button 
-                    onClick={stopRecording}
-                    className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white text-3xl shadow-xl relative z-10 hover:scale-105 transition-transform"
-                   >
-                     ⏹
-                   </button>
-                 </div>
-               ) : (
-                 <button 
-                  onClick={startRecording}
-                  className="w-20 h-20 bg-gradient-to-br from-afri-primary to-orange-600 rounded-full flex items-center justify-center text-white text-3xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
-                 >
-                   🎤
-                 </button>
-               )}
-               <p className={`text-sm font-medium ${isRecording ? 'text-red-500 animate-pulse' : 'text-gray-400'}`}>
-                 {isRecording ? 'Listening...' : 'Tap to speak'}
-               </p>
-            </div>
+             <div className="flex flex-col items-center justify-center h-48 py-8">
+                {isRecording ? (
+                  <div className="relative">
+                    <span className="absolute inset-0 rounded-full bg-red-100 animate-ping opacity-75"></span>
+                    <button 
+                      onClick={stopRecording}
+                      className="relative w-24 h-24 bg-red-500 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 transition-all"
+                    >
+                      <StopCircle size={48} />
+                    </button>
+                    <div className="mt-8 flex gap-1 h-6 items-end justify-center">
+                       {[1,2,3,4,5].map(i => <div key={i} className="w-1.5 bg-red-400 rounded-full animate-bounce" style={{height: `${Math.random()*20+10}px`, animationDuration: `${0.6}s`}}></div>)}
+                    </div>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={startRecording}
+                    className="w-24 h-24 bg-gradient-to-tr from-afri-primary to-orange-400 rounded-full flex items-center justify-center text-white shadow-glow hover:scale-110 transition-all duration-300"
+                  >
+                    <Mic size={40} />
+                  </button>
+                )}
+                <p className="mt-6 text-gray-400 font-medium tracking-wide text-sm uppercase">
+                  {isRecording ? 'Listening...' : 'Tap to Record'}
+                </p>
+             </div>
           )}
 
           {mode === 'image' && (
-            <div className="h-48 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50 hover:border-afri-primary hover:text-afri-primary transition-all relative group">
-               <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleImageUpload}
-                className="absolute inset-0 opacity-0 cursor-pointer z-10"
-              />
-              <div className="bg-gray-100 p-4 rounded-full mb-3 group-hover:bg-orange-100 transition-colors">
-                <span className="text-4xl">📷</span>
-              </div>
-              <p className="font-medium">Take a photo or upload</p>
-            </div>
-          )}
-          
-          {/* Action Button for Text Mode */}
-          {mode === 'text' && (
-            <div className="absolute bottom-4 right-4 z-10">
-               <button 
-                onClick={handleTranslateText}
-                disabled={!inputText || loading}
-                className="bg-gray-900 text-white px-6 py-2.5 rounded-full font-bold shadow-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transform active:scale-95 transition-all"
-               >
-                 {loading ? 'Translating...' : 'Translate'}
-                 {!loading && <span>→</span>}
-               </button>
+            <div className="h-48 border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50 hover:border-afri-primary/50 transition-all relative group cursor-pointer">
+               <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+               <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                 <ImageIcon size={32} />
+               </div>
+               <p className="font-semibold text-gray-500">Scan Text</p>
             </div>
           )}
         </div>
 
-        {/* Result Area */}
-        {(result || loading) && (
-          <div className="mt-6 animate-fade-in-up">
-            {loading ? (
-               <div className="bg-white rounded-3xl shadow-sm p-8 flex flex-col items-center justify-center text-center">
-                 <div className="w-12 h-12 border-4 border-afri-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-                 <p className="text-gray-800 font-bold">Consulting the ancestors...</p>
-                 <p className="text-gray-400 text-sm">Processing with Gemini AI</p>
-               </div>
-             ) : result ? (
-               <div className="bg-gradient-to-br from-afri-secondary to-green-800 rounded-3xl shadow-xl p-6 text-white relative overflow-hidden">
-                 {/* Decorative background circle */}
-                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full"></div>
-                 
-                 <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs font-bold uppercase tracking-widest text-green-200">{targetLang.name}</p>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={handleCopy}
-                        className="p-2 hover:bg-white/10 rounded-full transition-colors relative"
-                        title="Copy"
-                      >
-                        {copied ? '✓' : '📋'}
-                      </button>
-                      <button 
-                        onClick={handleSpeak}
-                        disabled={isPlaying}
-                        className={`p-2 hover:bg-white/10 rounded-full transition-colors flex items-center justify-center ${isPlaying ? 'animate-pulse text-green-200' : ''}`}
-                        title="Speak"
-                      >
-                         {isPlaying ? (
-                           <div className="w-5 h-5 flex items-end justify-center gap-0.5">
-                             <div className="w-1 bg-current h-2 animate-bounce"></div>
-                             <div className="w-1 bg-current h-4 animate-bounce delay-75"></div>
-                             <div className="w-1 bg-current h-3 animate-bounce delay-150"></div>
-                           </div>
-                         ) : '🔊'}
-                      </button>
-                    </div>
-                 </div>
-                 
-                 <h3 className="text-3xl font-bold mb-3 leading-tight">{result.translated}</h3>
-                 
-                 {result.pronunciation && (
-                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 inline-block mt-2">
-                     <p className="text-green-100 italic text-sm">Pronunciation: "{result.pronunciation}"</p>
-                   </div>
-                 )}
-               </div>
-             ) : null}
-          </div>
-        )}
+        {/* Action Toolbar */}
+        <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+           <div className="flex gap-2">
+             {(['text', 'voice', 'image'] as const).map((m) => (
+               <button
+                 key={m}
+                 onClick={() => setMode(m)}
+                 className={`p-3 rounded-xl transition-all ${mode === m ? 'bg-white shadow-md text-afri-primary' : 'text-gray-400 hover:bg-gray-100'}`}
+               >
+                 {m === 'text' && <Sparkles size={20} />}
+                 {m === 'voice' && <Mic size={20} />}
+                 {m === 'image' && <ImageIcon size={20} />}
+               </button>
+             ))}
+           </div>
+           
+           {mode === 'text' && (
+             <button 
+               onClick={handleTranslateText}
+               disabled={!inputText || loading}
+               className="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all active:scale-95"
+             >
+               {loading ? <Loader2 size={18} className="animate-spin" /> : <span>Translate</span>}
+             </button>
+           )}
+        </div>
       </div>
+
+      {/* Result Card */}
+      {(result || loading) && (
+        <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+           {loading ? (
+             <div className="bg-white/80 backdrop-blur rounded-[2rem] p-8 flex flex-col items-center justify-center text-center shadow-soft h-48">
+               <Loader2 size={40} className="text-afri-primary animate-spin mb-4" />
+               <p className="text-gray-800 font-bold text-lg">Thinking...</p>
+             </div>
+           ) : result ? (
+             <div className="bg-afri-secondary text-white rounded-[2rem] p-8 shadow-xl relative overflow-hidden group">
+               {/* Pattern overlay */}
+               <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none"></div>
+               
+               <div className="flex justify-between items-start mb-6 relative z-10">
+                 <span className="px-3 py-1 bg-white/20 rounded-lg text-xs font-bold tracking-widest uppercase backdrop-blur-sm border border-white/10">
+                   {targetLang.name}
+                 </span>
+                 <div className="flex gap-2">
+                   <button onClick={handleSpeak} disabled={isPlaying} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-all active:scale-90">
+                     {isPlaying ? <Loader2 size={20} className="animate-spin" /> : <Volume2 size={20} />}
+                   </button>
+                   <button onClick={handleCopy} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-all active:scale-90">
+                     {copied ? <Check size={20} /> : <Copy size={20} />}
+                   </button>
+                 </div>
+               </div>
+
+               <p className="text-2xl md:text-4xl font-bold leading-relaxed tracking-tight relative z-10">
+                 {result.translated}
+               </p>
+               
+               {result.pronunciation && (
+                 <div className="mt-6 pt-4 border-t border-white/10 relative z-10">
+                    <p className="text-green-200 text-sm font-medium mb-1">Pronunciation</p>
+                    <p className="font-mono text-green-50 text-lg italic tracking-wide">{result.pronunciation}</p>
+                 </div>
+               )}
+             </div>
+           ) : null}
+        </div>
+      )}
+      
+      {/* Spacer for Floating Dock */}
+      <div className="h-28 md:h-0"></div>
     </div>
   );
 };
