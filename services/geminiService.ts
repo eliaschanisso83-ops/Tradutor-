@@ -5,6 +5,14 @@ import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 // We provide a fallback string to prevent the app from crashing (white screen) immediately 
 // if the key is missing. The API calls will simply fail gracefully later.
 const apiKey = process.env.API_KEY || "MISSING_API_KEY";
+
+// Debug logs to help troubleshoot in browser console
+if (apiKey === "MISSING_API_KEY") {
+  console.warn("AfriLingo: API Key is missing! Check Vercel Environment Variables and Redeploy.");
+} else {
+  console.log("AfriLingo: API Key loaded successfully.");
+}
+
 const ai = new GoogleGenAI({ apiKey });
 
 const TEXT_MODEL = 'gemini-3-flash-preview';
