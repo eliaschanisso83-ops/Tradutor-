@@ -1,8 +1,8 @@
-const CACHE_NAME = 'afrilingo-v2'; // Bumped version to v2 to apply AdSense changes
+const CACHE_NAME = 'afrilingo-v3'; // Bumped to v3 for APK fix
 const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
+  '/',
+  '/index.html',
+  '/manifest.json',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap'
 ];
@@ -41,11 +41,11 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .catch(() => {
-          return caches.match(event.request)
+          // Important: ignoreSearch: true allows index.html to be found even if URL has query params (like from Play Store)
+          return caches.match('/', { ignoreSearch: true })
             .then((response) => {
               if (response) return response;
-              // SPA Fallback: If not found in cache, return index.html
-              return caches.match('./index.html');
+              return caches.match('/index.html', { ignoreSearch: true });
             });
         })
     );
@@ -54,7 +54,7 @@ self.addEventListener('fetch', (event) => {
 
   // 2. Handle Asset Requests (JS, CSS, Images) - Cache First, fallback to Network
   event.respondWith(
-    caches.match(event.request)
+    caches.match(event.request, { ignoreSearch: true })
       .then((response) => {
         if (response) {
           return response;
