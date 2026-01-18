@@ -2,8 +2,10 @@ import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 
 // The build system (Vite) is configured to replace 'process.env.API_KEY'
 // with the actual string value from the environment variables during build.
-// Always access process.env.API_KEY directly in the constructor.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// We provide a fallback string to prevent the app from crashing (white screen) immediately 
+// if the key is missing. The API calls will simply fail gracefully later.
+const apiKey = process.env.API_KEY || "MISSING_API_KEY";
+const ai = new GoogleGenAI({ apiKey });
 
 const TEXT_MODEL = 'gemini-3-flash-preview';
 const VISION_MODEL = 'gemini-2.5-flash-image';
@@ -65,7 +67,7 @@ export const translateText = async (
     };
   } catch (error) {
     console.error("Translation error:", error);
-    return { translated: "Error connecting to AI.", pronunciation: "" };
+    return { translated: "Check API Key configuration.", pronunciation: "" };
   }
 };
 
@@ -167,7 +169,7 @@ export const chatWithTutor = async (
     return result.text || "I didn't catch that.";
   } catch (error) {
     console.error("Chat error:", error);
-    return "My connection is a bit slow right now. Try again?";
+    return "Connection error. Please check your API Key.";
   }
 };
 
