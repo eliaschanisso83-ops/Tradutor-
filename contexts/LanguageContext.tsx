@@ -46,8 +46,32 @@ const translations = {
       tap_translate: 'Tap to translate'
     },
     community: {
-      title: 'Join the Community',
+      title: 'Community Club',
       desc: 'Help preserve African languages! Contribute translations, verify phrases, or record pronunciations.',
+      tabs: {
+        feed: 'Feed',
+        verify: 'Verify',
+        contribute: 'Add New'
+      },
+      feed: {
+        empty: 'No recent activity.',
+        verified: 'verified a translation',
+        added: 'added a new phrase'
+      },
+      verify: {
+        title: 'Is this correct?',
+        yes: 'Correct',
+        no: 'Incorrect',
+        streak: 'Verification Streak'
+      },
+      contribute: {
+        title: 'Add to Dictionary',
+        word_label: 'Word or Phrase',
+        lang_label: 'Language',
+        trans_label: 'Translation (English/Portuguese)',
+        submit: 'Submit Contribution',
+        success: 'Thanks for contributing!'
+      },
       verify_title: 'Verify Translations',
       verify_desc: 'Help us check if the AI got the Ndau greeting correct.',
       btn_review: 'Start Review',
@@ -100,8 +124,32 @@ const translations = {
       tap_translate: 'Toque para traduzir'
     },
     community: {
-      title: 'Entre para a Comunidade',
+      title: 'Clube da Comunidade',
       desc: 'Ajude a preservar línguas africanas! Contribua com traduções, verifique frases ou grave pronúncias.',
+      tabs: {
+        feed: 'Feed',
+        verify: 'Verificar',
+        contribute: 'Adicionar'
+      },
+      feed: {
+        empty: 'Nenhuma atividade recente.',
+        verified: 'verificou uma tradução',
+        added: 'adicionou uma nova frase'
+      },
+      verify: {
+        title: 'Isto está correto?',
+        yes: 'Correto',
+        no: 'Incorreto',
+        streak: 'Sequência de Verificação'
+      },
+      contribute: {
+        title: 'Adicionar ao Dicionário',
+        word_label: 'Palavra ou Frase',
+        lang_label: 'Idioma',
+        trans_label: 'Tradução (Inglês/Português)',
+        submit: 'Enviar Contribuição',
+        success: 'Obrigado por contribuir!'
+      },
       verify_title: 'Verificar Traduções',
       verify_desc: 'Ajude-nos a verificar se a IA acertou a saudação em Ndau.',
       btn_review: 'Iniciar Revisão',
