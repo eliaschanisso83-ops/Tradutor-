@@ -1,15 +1,15 @@
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
-  // Carrega as variáveis de ambiente baseadas no modo atual (production, development, etc.)
-  // O terceiro argumento '' garante que carregamos todas as variáveis, não apenas as com prefixo VITE_
+  // Load environment variables
   const env = loadEnv(mode, (process as any).cwd(), '');
 
   return {
     define: {
-      // Isso substitui qualquer ocorrência de 'process.env.API_KEY' no código
-      // pelo valor real da string da chave durante o build
-      'process.env.API_KEY': JSON.stringify(env.API_KEY)
+      // Replace process.env.API_KEY with the string value from Vercel
+      'process.env.API_KEY': JSON.stringify(env.API_KEY),
+      // Polyfill process.env to empty object to prevent "process is not defined" errors
+      'process.env': {}
     }
   };
 });
