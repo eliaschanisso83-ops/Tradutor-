@@ -1,7 +1,8 @@
 import React from 'react';
 import { ViewState } from '../types';
-import { MessageCircle, GraduationCap, Languages, Map, Users, Globe } from 'lucide-react';
+import { MessageCircle, GraduationCap, Languages, Map, Users, Globe, UserCircle2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useUser } from '../contexts/UserContext';
 
 interface NavigationProps {
   currentView: ViewState;
@@ -10,6 +11,7 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
   const { t } = useLanguage();
+  const { user, setProfileOpen } = useUser();
 
   const navItems = [
     { id: 'translate', label: t('nav.translate'), icon: Languages },
@@ -47,7 +49,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
 
       {/* Desktop Sidebar */}
       <nav className="hidden md:flex flex-col w-72 h-screen glass border-r border-gray-100 relative z-50">
-        <div className="p-8">
+        <div className="p-8 h-full flex flex-col">
           <div className="flex items-center gap-3 text-afri-primary mb-10">
             <div className="p-2 bg-orange-100 rounded-xl">
               <Globe size={28} />
@@ -55,7 +57,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
             <h1 className="text-2xl font-extrabold tracking-tight text-gray-800">AfriLingo</h1>
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-2 flex-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentView === item.id;
@@ -76,19 +78,21 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
               );
             })}
           </div>
-        </div>
-        
-        <div className="mt-auto p-8">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden group cursor-pointer">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
-            <p className="text-sm text-gray-300 font-medium mb-1">{t('nav.weekly_goal')}</p>
-            <div className="flex items-end gap-2 mb-2">
-              <span className="text-3xl font-bold">4/7</span>
-              <span className="text-sm text-gray-400 mb-1">{t('nav.days')}</span>
-            </div>
-            <div className="w-full bg-gray-700 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-afri-primary w-[60%] h-full rounded-full"></div>
-            </div>
+
+          {/* User Profile Button Desktop */}
+          <div className="mt-auto pt-6 border-t border-gray-100">
+            <button 
+              onClick={() => setProfileOpen(true)}
+              className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-white hover:shadow-sm transition-all border border-transparent hover:border-gray-100"
+            >
+              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-lg shadow-inner">
+                {user?.avatar || '🦁'}
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-bold text-gray-800 truncate w-32">{user?.username}</p>
+                <p className="text-xs text-gray-500">View Profile</p>
+              </div>
+            </button>
           </div>
         </div>
       </nav>

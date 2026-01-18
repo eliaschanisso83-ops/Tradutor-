@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MOCK_LESSONS } from '../constants';
 import { Lesson } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import AdBanner from './AdBanner';
 
 const LearnView: React.FC = () => {
   const { t } = useLanguage();
@@ -85,6 +86,8 @@ const LearnView: React.FC = () => {
               {t('learn.view_details')}
             </button>
           </div>
+          
+          <AdBanner slotId="777666555" />
         </div>
       </div>
 
@@ -108,6 +111,9 @@ const LearnView: React.FC = () => {
                 <button className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors">
                   {t('learn.view_phrases')}
                 </button>
+              </div>
+              <div className="mt-6">
+                <AdBanner slotId="modal-ad" />
               </div>
             </div>
           </div>

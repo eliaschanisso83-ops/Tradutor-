@@ -5,13 +5,16 @@ import TutorView from './components/TutorView';
 import LearnView from './components/LearnView';
 import TouristView from './components/TouristView';
 import CommunityView from './components/CommunityView';
+import ProfileDialog from './components/ProfileDialog';
 import { ViewState } from './types';
 import { Globe } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { UserProvider, useUser } from './contexts/UserContext';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('translate');
   const { language, setLanguage } = useLanguage();
+  const { user, setProfileOpen } = useUser();
 
   const renderView = () => {
     switch (currentView) {
@@ -32,6 +35,7 @@ const AppContent: React.FC = () => {
     <div className="flex h-screen w-screen overflow-hidden bg-gradient-animate">
       
       <Navigation currentView={currentView} setView={setCurrentView} />
+      <ProfileDialog />
 
       <main className="flex-1 relative h-full w-full overflow-hidden flex flex-col">
         {/* Mobile Header */}
@@ -40,15 +44,26 @@ const AppContent: React.FC = () => {
             <Globe size={24} />
             <h1 className="text-xl font-extrabold tracking-tight text-gray-800">AfriLingo</h1>
           </div>
-          <button 
-            onClick={toggleLanguage}
-            className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm border border-gray-200"
-          >
-            {language === 'en' ? '🇺🇸' : '🇵🇹'}
-          </button>
+          
+          <div className="flex items-center gap-3">
+             {/* Mobile User Profile Button */}
+             <button 
+               onClick={() => setProfileOpen(true)}
+               className="w-9 h-9 bg-orange-100 rounded-full flex items-center justify-center text-sm shadow-sm border border-white"
+             >
+               {user?.avatar || '🦁'}
+             </button>
+
+            <button 
+              onClick={toggleLanguage}
+              className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm border border-gray-200"
+            >
+              {language === 'en' ? '🇺🇸' : '🇵🇹'}
+            </button>
+          </div>
         </div>
 
-        {/* Desktop Language Toggle (positioned absolutely in top right if needed, or part of nav) */}
+        {/* Desktop Language Toggle */}
         <div className="hidden md:block absolute top-6 right-8 z-50">
            <button 
             onClick={toggleLanguage}
@@ -68,9 +83,11 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <UserProvider>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
+    </UserProvider>
   );
 };
 

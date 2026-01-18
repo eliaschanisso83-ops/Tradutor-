@@ -1,3 +1,4 @@
+
 export type ViewState = 'translate' | 'learn' | 'tutor' | 'tourist' | 'community';
 
 export interface Language {
@@ -35,4 +36,10 @@ export interface TranslationResult {
   translated: string;
   pronunciation?: string;
   detectedSource?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  avatar: string; // Emoji
 }

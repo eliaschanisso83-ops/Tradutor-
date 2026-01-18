@@ -4,6 +4,7 @@ import { translateText, translateImage, translateAudio, generateSpeech } from '.
 import { Language } from '../types';
 import { Mic, StopCircle, Image as ImageIcon, Sparkles, Copy, Check, Volume2, ArrowRightLeft, X, Loader2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import AdBanner from './AdBanner';
 
 function decode(base64: string) {
   const binaryString = atob(base64);
@@ -295,6 +296,9 @@ const TranslationView: React.FC = () => {
            ) : null}
         </div>
       )}
+      
+      {/* Banner Ad Area */}
+      <AdBanner slotId="89324792" />
       
       {/* Spacer for Floating Dock */}
       <div className="h-28 md:h-0"></div>
