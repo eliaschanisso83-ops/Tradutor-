@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>AfriLingo AI</title>
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="./manifest.json" />
+    <!-- PWA Manifest (Absolute path for reliability) -->
+    <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2014/2014829.png">
     
     <!-- Google AdSense -->
@@ -122,7 +122,8 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js')
+          // Use absolute path for sw.js to handle SPA routing correctly
+          navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
               console.log('ServiceWorker registration successful');
               // Optional: Check for updates

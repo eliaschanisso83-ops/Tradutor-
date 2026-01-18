@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
-import { X, Save, Loader2 } from 'lucide-react';
+import { X, Save, Loader2, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const AVATARS = ['🦁', '🐘', '🦒', '🦓', '🐆', '🌍', '🥁', '🌞', '💎', '🏺', '🥘', '🛖'];
@@ -12,6 +12,7 @@ const ProfileDialog: React.FC = () => {
   const [username, setUsername] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
 
   useEffect(() => {
     if (user && isProfileOpen) {
@@ -19,6 +20,37 @@ const ProfileDialog: React.FC = () => {
       setSelectedAvatar(user.avatar);
     }
   }, [user, isProfileOpen]);
+
+  // Listen for the PWA install event
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      setInstallPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    
+    // Show the install prompt
+    installPrompt.prompt();
+    
+    // Wait for the user to respond to the prompt
+    const { outcome } = await installPrompt.userChoice;
+    
+    // We've used the prompt, and can't use it again, throw it away
+    if (outcome === 'accepted') {
+      setInstallPrompt(null);
+    }
+  };
 
   if (!isProfileOpen) return null;
 
@@ -83,6 +115,17 @@ const ProfileDialog: React.FC = () => {
               {isSaving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
               Save Profile
             </button>
+            
+            {/* Install App Button - Only shows if browser supports it and hasn't been installed yet */}
+            {installPrompt && (
+              <button
+                onClick={handleInstallClick}
+                className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors mt-2 shadow-lg"
+              >
+                <Download size={20} />
+                Install App
+              </button>
+            )}
           </div>
         </div>
       </div>

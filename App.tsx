@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navigation from './components/Navigation';
 import TranslationView from './components/TranslationView';
 import TutorView from './components/TutorView';
@@ -6,6 +6,7 @@ import LearnView from './components/LearnView';
 import TouristView from './components/TouristView';
 import CommunityView from './components/CommunityView';
 import ProfileDialog from './components/ProfileDialog';
+import PrivacyPolicy from './components/PrivacyPolicy';
 import { ViewState } from './types';
 import { Globe } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -13,8 +14,20 @@ import { UserProvider, useUser } from './contexts/UserContext';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('translate');
+  const [isPrivacyRoute, setIsPrivacyRoute] = useState(false);
   const { language, setLanguage } = useLanguage();
   const { user, setProfileOpen } = useUser();
+
+  // Simple routing check for Privacy Policy
+  useEffect(() => {
+    if (window.location.pathname === '/privacy') {
+      setIsPrivacyRoute(true);
+    }
+  }, []);
+
+  if (isPrivacyRoute) {
+    return <PrivacyPolicy />;
+  }
 
   const renderView = () => {
     switch (currentView) {
