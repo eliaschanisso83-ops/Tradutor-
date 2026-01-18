@@ -1,4 +1,4 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 
 const apiKey = process.env.API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
@@ -6,6 +6,25 @@ const ai = new GoogleGenAI({ apiKey });
 const TEXT_MODEL = 'gemini-3-flash-preview';
 const VISION_MODEL = 'gemini-2.5-flash-image';
 const AUDIO_MODEL = 'gemini-2.5-flash-native-audio-preview-12-2025';
+const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
+
+// Helper to clean Markdown code blocks safely without using backtick regex literals
+const cleanJsonOutput = (text: string): string => {
+  if (!text) return '{}';
+  let clean = text.trim();
+  // Remove ```json and ``` using string replacement to avoid tokenizer issues
+  if (clean.startsWith('```json')) {
+    clean = clean.substring(7);
+  } else if (clean.startsWith('```')) {
+    clean = clean.substring(3);
+  }
+  
+  if (clean.endsWith('```')) {
+    clean = clean.substring(0, clean.length - 3);
+  }
+  
+  return clean.trim();
+};
 
 export const translateText = async (
   text: string,
@@ -36,10 +55,7 @@ export const translateText = async (
       }
     });
 
-    const rawText = response.text || '{}';
-    // Clean potential markdown backticks just in case
-    const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-    const parsed = JSON.parse(cleanJson);
+    const parsed = JSON.parse(cleanJsonOutput(response.text || '{}'));
     
     return { 
       translated: parsed.translated || 'Translation error', 
@@ -93,7 +109,7 @@ export const translateAudio = async (
         parts: [
           {
             inlineData: {
-              mimeType: mimeType, // Use the actual mime type from the recorder
+              mimeType: mimeType,
               data: base64Audio,
             },
           },
@@ -114,9 +130,7 @@ export const translateAudio = async (
       }
     });
 
-    const jsonStr = response.text || '{}';
-    const cleanJson = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
-    const parsed = JSON.parse(cleanJson);
+    const parsed = JSON.parse(cleanJsonOutput(response.text || '{}'));
     
     return {
       transcription: parsed.transcription || "No speech detected",
@@ -152,5 +166,28 @@ export const chatWithTutor = async (
   } catch (error) {
     console.error("Chat error:", error);
     return "My connection is a bit slow right now. Try again?";
+  }
+};
+
+export const generateSpeech = async (text: string): Promise<string | null> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: TTS_MODEL,
+      contents: { parts: [{ text }] },
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: 'Kore' },
+          },
+        },
+      },
+    });
+    
+    // Extract base64 audio data
+    return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
+  } catch (error) {
+    console.error("TTS error:", error);
+    return null;
   }
 };
