@@ -7,9 +7,11 @@ import TouristView from './components/TouristView';
 import CommunityView from './components/CommunityView';
 import { ViewState } from './types';
 import { Globe } from 'lucide-react';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('translate');
+  const { language, setLanguage } = useLanguage();
 
   const renderView = () => {
     switch (currentView) {
@@ -20,6 +22,10 @@ const App: React.FC = () => {
       case 'community': return <CommunityView />;
       default: return <TranslationView />;
     }
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'pt' : 'en');
   };
 
   return (
@@ -34,9 +40,22 @@ const App: React.FC = () => {
             <Globe size={24} />
             <h1 className="text-xl font-extrabold tracking-tight text-gray-800">AfriLingo</h1>
           </div>
-          <div className="w-9 h-9 bg-orange-100 rounded-full flex items-center justify-center text-afri-primary font-bold shadow-sm border border-orange-200">
-            JS
-          </div>
+          <button 
+            onClick={toggleLanguage}
+            className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm border border-gray-200"
+          >
+            {language === 'en' ? '🇺🇸' : '🇵🇹'}
+          </button>
+        </div>
+
+        {/* Desktop Language Toggle (positioned absolutely in top right if needed, or part of nav) */}
+        <div className="hidden md:block absolute top-6 right-8 z-50">
+           <button 
+            onClick={toggleLanguage}
+            className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <span>{language === 'en' ? '🇺🇸 English' : '🇵🇹 Português'}</span>
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth">
@@ -44,6 +63,14 @@ const App: React.FC = () => {
         </div>
       </main>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

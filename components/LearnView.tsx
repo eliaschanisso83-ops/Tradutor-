@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { MOCK_LESSONS } from '../constants';
 import { Lesson } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const LearnView: React.FC = () => {
+  const { t } = useLanguage();
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
 
   const startLesson = (lesson: Lesson) => {
@@ -25,11 +27,11 @@ const LearnView: React.FC = () => {
                   <path className="text-gray-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="4" />
                   <path className="text-orange-500" strokeDasharray="70, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="4" />
                 </svg>
-                <span className="absolute text-xs font-bold text-gray-700">5 Days</span>
+                <span className="absolute text-xs font-bold text-gray-700">5 {t('nav.days')}</span>
              </div>
              <div>
-               <p className="text-xs text-gray-400 font-bold uppercase">Daily Streak</p>
-               <h2 className="text-lg font-bold text-gray-800">You're on fire! 🔥</h2>
+               <p className="text-xs text-gray-400 font-bold uppercase">{t('learn.streak')}</p>
+               <h2 className="text-lg font-bold text-gray-800">{t('learn.fire')} 🔥</h2>
              </div>
           </div>
           <div className="bg-yellow-50 px-4 py-2 rounded-xl border border-yellow-200 flex items-center gap-2">
@@ -37,9 +39,10 @@ const LearnView: React.FC = () => {
           </div>
         </header>
 
-        <h3 className="text-xl font-bold text-gray-800 mb-4 px-2">Current Path</h3>
+        <h3 className="text-xl font-bold text-gray-800 mb-4 px-2">{t('learn.current_path')}</h3>
 
-        <div className="space-y-6 pb-20">
+        {/* Increased bottom padding to pb-32 for mobile dock clearance */}
+        <div className="space-y-6 pb-32">
           {MOCK_LESSONS.map((lesson, index) => (
             <div 
               key={lesson.id} 
@@ -76,10 +79,10 @@ const LearnView: React.FC = () => {
 
           <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-6 text-white text-center shadow-lg mt-8 transform hover:scale-[1.02] transition-transform cursor-pointer">
             <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">🏆</div>
-            <h3 className="text-xl font-bold mb-2">Weekly Challenge</h3>
-            <p className="text-gray-300 mb-4 text-sm">Complete 3 conversation modules to unlock the "Polyglot" badge.</p>
+            <h3 className="text-xl font-bold mb-2">{t('learn.challenge_title')}</h3>
+            <p className="text-gray-300 mb-4 text-sm">{t('learn.challenge_desc')}</p>
             <button className="bg-white text-gray-900 px-8 py-2.5 rounded-full font-bold hover:bg-gray-100 transition-colors shadow-lg">
-              View Details
+              {t('learn.view_details')}
             </button>
           </div>
         </div>
@@ -100,10 +103,10 @@ const LearnView: React.FC = () => {
               
               <div className="space-y-3">
                 <button className="w-full bg-afri-primary text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors shadow-lg">
-                  Start Lesson (+{activeLesson.xp} XP)
+                  {t('learn.start_lesson')} (+{activeLesson.xp} XP)
                 </button>
                 <button className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors">
-                  View Key Phrases
+                  {t('learn.view_phrases')}
                 </button>
               </div>
             </div>

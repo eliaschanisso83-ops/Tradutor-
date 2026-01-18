@@ -3,8 +3,8 @@ import { SUPPORTED_LANGUAGES } from '../constants';
 import { translateText, translateImage, translateAudio, generateSpeech } from '../services/geminiService';
 import { Language } from '../types';
 import { Mic, StopCircle, Image as ImageIcon, Sparkles, Copy, Check, Volume2, ArrowRightLeft, X, Loader2 } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
-// Audio decoding helpers remain the same
 function decode(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
@@ -27,6 +27,7 @@ async function decodeAudioData(data: Uint8Array, ctx: AudioContext): Promise<Aud
 }
 
 const TranslationView: React.FC = () => {
+  const { t } = useLanguage();
   const [sourceLang, setSourceLang] = useState<Language>(SUPPORTED_LANGUAGES[1]); // English
   const [targetLang, setTargetLang] = useState<Language>(SUPPORTED_LANGUAGES[4]); // Changana
   const [inputText, setInputText] = useState('');
@@ -39,9 +40,6 @@ const TranslationView: React.FC = () => {
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-
-  // ... (Keep existing handlers: handleTranslateText, handleImageUpload, startRecording, stopRecording) ...
-  // Re-implementing them briefly to ensure context is kept
   
   const handleTranslateText = async () => {
     if (!inputText.trim()) return;
@@ -176,7 +174,7 @@ const TranslationView: React.FC = () => {
             <>
               <textarea
                 className="w-full h-full resize-none outline-none text-2xl font-medium text-gray-800 placeholder-gray-300 bg-transparent leading-relaxed"
-                placeholder="Enter text here..."
+                placeholder={t('translate.placeholder')}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
               />
@@ -212,7 +210,7 @@ const TranslationView: React.FC = () => {
                   </button>
                 )}
                 <p className="mt-6 text-gray-400 font-medium tracking-wide text-sm uppercase">
-                  {isRecording ? 'Listening...' : 'Tap to Record'}
+                  {isRecording ? t('translate.listening') : t('translate.record')}
                 </p>
              </div>
           )}
@@ -223,7 +221,7 @@ const TranslationView: React.FC = () => {
                <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                  <ImageIcon size={32} />
                </div>
-               <p className="font-semibold text-gray-500">Scan Text</p>
+               <p className="font-semibold text-gray-500">{t('translate.scan')}</p>
             </div>
           )}
         </div>
@@ -250,7 +248,7 @@ const TranslationView: React.FC = () => {
                disabled={!inputText || loading}
                className="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all active:scale-95"
              >
-               {loading ? <Loader2 size={18} className="animate-spin" /> : <span>Translate</span>}
+               {loading ? <Loader2 size={18} className="animate-spin" /> : <span>{t('translate.translate_btn')}</span>}
              </button>
            )}
         </div>
@@ -262,7 +260,7 @@ const TranslationView: React.FC = () => {
            {loading ? (
              <div className="bg-white/80 backdrop-blur rounded-[2rem] p-8 flex flex-col items-center justify-center text-center shadow-soft h-48">
                <Loader2 size={40} className="text-afri-primary animate-spin mb-4" />
-               <p className="text-gray-800 font-bold text-lg">Thinking...</p>
+               <p className="text-gray-800 font-bold text-lg">{t('translate.thinking')}</p>
              </div>
            ) : result ? (
              <div className="bg-afri-secondary text-white rounded-[2rem] p-8 shadow-xl relative overflow-hidden group">
@@ -289,7 +287,7 @@ const TranslationView: React.FC = () => {
                
                {result.pronunciation && (
                  <div className="mt-6 pt-4 border-t border-white/10 relative z-10">
-                    <p className="text-green-200 text-sm font-medium mb-1">Pronunciation</p>
+                    <p className="text-green-200 text-sm font-medium mb-1">{t('translate.pronunciation')}</p>
                     <p className="font-mono text-green-50 text-lg italic tracking-wide">{result.pronunciation}</p>
                  </div>
                )}

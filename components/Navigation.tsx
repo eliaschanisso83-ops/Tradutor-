@@ -1,6 +1,7 @@
 import React from 'react';
 import { ViewState } from '../types';
 import { MessageCircle, GraduationCap, Languages, Map, Users, Globe } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface NavigationProps {
   currentView: ViewState;
@@ -8,12 +9,14 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
+  const { t } = useLanguage();
+
   const navItems = [
-    { id: 'translate', label: 'Translate', icon: Languages },
-    { id: 'learn', label: 'Learn', icon: GraduationCap },
-    { id: 'tutor', label: 'Tutor', icon: MessageCircle },
-    { id: 'tourist', label: 'Tourist', icon: Map },
-    { id: 'community', label: 'Club', icon: Users },
+    { id: 'translate', label: t('nav.translate'), icon: Languages },
+    { id: 'learn', label: t('nav.learn'), icon: GraduationCap },
+    { id: 'tutor', label: t('nav.tutor'), icon: MessageCircle },
+    { id: 'tourist', label: t('nav.tourist'), icon: Map },
+    { id: 'community', label: t('nav.community'), icon: Users },
   ];
 
   return (
@@ -78,10 +81,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
         <div className="mt-auto p-8">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden group cursor-pointer">
             <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
-            <p className="text-sm text-gray-300 font-medium mb-1">Weekly Goal</p>
+            <p className="text-sm text-gray-300 font-medium mb-1">{t('nav.weekly_goal')}</p>
             <div className="flex items-end gap-2 mb-2">
               <span className="text-3xl font-bold">4/7</span>
-              <span className="text-sm text-gray-400 mb-1">days</span>
+              <span className="text-sm text-gray-400 mb-1">{t('nav.days')}</span>
             </div>
             <div className="w-full bg-gray-700 h-1.5 rounded-full overflow-hidden">
               <div className="bg-afri-primary w-[60%] h-full rounded-full"></div>

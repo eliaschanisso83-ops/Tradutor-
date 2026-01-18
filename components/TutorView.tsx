@@ -1,27 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from '../types';
 import { chatWithTutor } from '../services/geminiService';
-
-const SUGGESTED_TOPICS = [
-  "👋 Greetings",
-  "🍎 Market",
-  "🚌 Travel",
-  "👪 Family",
-  "😂 Slang"
-];
+import { useLanguage } from '../contexts/LanguageContext';
 
 const TutorView: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      role: 'model',
-      text: 'Mwauka bwanji! (Good morning!) I am your AfriLingo tutor. Which language would you like to practice today?',
-      timestamp: new Date()
-    }
-  ]);
+  const { t, language } = useLanguage();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize or update the first message when language changes
+  useEffect(() => {
+    if (messages.length === 0 || (messages.length === 1 && messages[0].role === 'model')) {
+       setMessages([{
+        id: '1',
+        role: 'model',
+        text: t('tutor.intro'),
+        timestamp: new Date()
+      }]);
+    }
+  }, [language]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -64,6 +63,8 @@ const TutorView: React.FC = () => {
     setIsTyping(false);
   };
 
+  const suggestions: string[] = t('tutor.suggested');
+
   return (
     <div className="flex flex-col h-full bg-gray-50 max-w-3xl mx-auto w-full shadow-lg relative">
       <div className="bg-white p-4 border-b flex items-center gap-4 z-10 shadow-sm">
@@ -74,8 +75,8 @@ const TutorView: React.FC = () => {
           <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
         </div>
         <div>
-          <h2 className="font-bold text-gray-800 text-lg">AfriLingo Tutor</h2>
-          <p className="text-xs text-gray-500">Always here to help you learn.</p>
+          <h2 className="font-bold text-gray-800 text-lg">{t('tutor.title')}</h2>
+          <p className="text-xs text-gray-500">{t('tutor.subtitle')}</p>
         </div>
       </div>
 
@@ -114,7 +115,7 @@ const TutorView: React.FC = () => {
       {/* Suggested Topics (only show if not typing) */}
       {!isTyping && (
         <div className="px-4 py-2 bg-[#f0f2f5] flex gap-2 overflow-x-auto no-scrollbar">
-          {SUGGESTED_TOPICS.map(topic => (
+          {suggestions.map(topic => (
             <button
               key={topic}
               onClick={() => handleSend(topic)}
@@ -126,14 +127,15 @@ const TutorView: React.FC = () => {
         </div>
       )}
 
-      <div className="p-4 bg-white border-t">
+      {/* Added pb-28 for mobile bottom navigation clearance */}
+      <div className="p-4 bg-white border-t pb-28 md:pb-4 transition-all">
         <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type a message..."
+            placeholder={t('tutor.type_placeholder')}
             className="flex-1 bg-gray-100 border-transparent focus:bg-white border focus:border-afri-primary rounded-full px-5 py-3 focus:ring-0 outline-none transition-all"
           />
           <button

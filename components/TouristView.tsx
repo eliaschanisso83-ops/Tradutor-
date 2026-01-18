@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { TOURIST_PHRASES, SUPPORTED_LANGUAGES } from '../constants';
 import { translateText } from '../services/geminiService';
 import { Language } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const TouristView: React.FC = () => {
+  const { t } = useLanguage();
   const [targetLang, setTargetLang] = useState<Language>(SUPPORTED_LANGUAGES.find(l => l.code === 'swahili') || SUPPORTED_LANGUAGES[5]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(TOURIST_PHRASES[0].category);
   const [translations, setTranslations] = useState<Record<string, string>>({});
@@ -24,11 +26,11 @@ const TouristView: React.FC = () => {
     <div className="h-full bg-afri-light overflow-y-auto p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         <header className="mb-6">
-          <h2 className="text-3xl font-bold text-afri-dark mb-2">Tourist Mode 🧭</h2>
-          <p className="text-gray-600 mb-4">Survival phrases for your trip.</p>
+          <h2 className="text-3xl font-bold text-afri-dark mb-2">{t('tourist.title')} 🧭</h2>
+          <p className="text-gray-600 mb-4">{t('tourist.subtitle')}</p>
           
           <div className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm">
-            <span className="text-gray-500 text-sm">Translating to:</span>
+            <span className="text-gray-500 text-sm">{t('tourist.translating_to')}</span>
             <select 
               value={targetLang.code}
               onChange={(e) => {
@@ -86,7 +88,7 @@ const TouristView: React.FC = () => {
                             onClick={() => getTranslation(phrase.original)}
                             className="text-sm text-afri-primary underline decoration-dotted"
                           >
-                            Tap to translate
+                            {t('tourist.tap_translate')}
                           </button>
                         )}
                       </div>
@@ -97,6 +99,9 @@ const TouristView: React.FC = () => {
             </div>
           ))}
         </div>
+        
+        {/* Spacer for Mobile Dock */}
+        <div className="h-28 md:h-0"></div>
       </div>
     </div>
   );
