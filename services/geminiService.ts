@@ -7,8 +7,9 @@ const isValidKey = apiKey && apiKey.length > 10 && apiKey !== 'undefined';
 // Initialization strictly using process.env.API_KEY
 const ai = new GoogleGenAI({ apiKey: isValidKey ? apiKey : 'MISSING_KEY' });
 
-// Using gemini-3-flash-preview as per instructions.
-const MULTIMODAL_MODEL = 'gemini-3-flash-preview';
+// SWITCHED MODEL: 'gemini-flash-latest' (usually maps to 1.5 Flash or 2.5 Flash) has better quotas 
+// than the experimental 'gemini-3-flash-preview' shown in your error.
+const MULTIMODAL_MODEL = 'gemini-flash-latest';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 
 // Robust JSON extractor
@@ -24,6 +25,21 @@ const extractJSON = (text: string): any => {
   }
 };
 
+// Helper to format Google API errors into friendly text
+const formatError = (error: any): string => {
+  const msg = error.message || error.toString();
+  if (msg.includes('429') || msg.includes('quota')) {
+    return "Limite de uso atingido (Quota). Aguarde 1 minuto.";
+  }
+  if (msg.includes('503') || msg.includes('overloaded')) {
+    return "Servidor do Google ocupado. Tente novamente.";
+  }
+  if (msg.includes('API key')) {
+    return "Chave de API inválida.";
+  }
+  return "Erro de conexão temporário.";
+};
+
 export const translateText = async (
   text: string,
   sourceLang: string,
@@ -31,8 +47,7 @@ export const translateText = async (
 ): Promise<{ translated: string; pronunciation: string; error?: string }> => {
   
   if (!isValidKey) {
-    console.error("API Key Check Failed. Value exists:", !!apiKey);
-    return { translated: "Erro de Configuração", pronunciation: "", error: "Chave de API inválida ou ausente no Vercel." };
+    return { translated: "Erro de Configuração", pronunciation: "", error: "Chave de API ausente." };
   }
 
   try {
@@ -61,7 +76,11 @@ export const translateText = async (
     };
   } catch (error: any) {
     console.error("Gemini Error:", error);
-    return { translated: "Erro de Conexão", pronunciation: "", error: error.message || "Verifique a API Key." };
+    return { 
+      translated: "Erro de Serviço", 
+      pronunciation: "", 
+      error: formatError(error)
+    };
   }
 };
 
@@ -85,7 +104,7 @@ export const translateImage = async (
 
     return response.text || "Sem resultado.";
   } catch (error: any) {
-    return `Erro: ${error.message}`;
+    return formatError(error);
   }
 };
 
@@ -109,11 +128,11 @@ export const translateAudio = async (
 
     const parsed = extractJSON(response.text || "{}");
     return {
-      transcription: parsed.transcription || "(Áudio)",
+      transcription: parsed.transcription || "(Áudio detectado)",
       translation: parsed.translation || "Falha na tradução"
     };
   } catch (error: any) {
-    return { transcription: "Erro", translation: error.message };
+    return { transcription: "Erro", translation: formatError(error) };
   }
 };
 
@@ -134,7 +153,7 @@ export const chatWithTutor = async (
     const result = await chat.sendMessage({ message });
     return result.text || "...";
   } catch (error) {
-    return "Erro de conexão.";
+    return formatError(error);
   }
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SUPPORTED_LANGUAGES } from '../constants';
 import { translateText, translateImage, translateAudio, generateSpeech } from '../services/geminiService';
 import { Language } from '../types';
-import { Mic, StopCircle, Image as ImageIcon, Sparkles, Copy, Check, Volume2, ArrowRightLeft, X, Loader2, AlertTriangle } from 'lucide-react';
+import { Mic, StopCircle, Image as ImageIcon, Sparkles, Copy, Check, Volume2, ArrowRightLeft, X, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import AdBanner from './AdBanner';
 
@@ -72,14 +72,13 @@ const TranslationView: React.FC = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // Try standard types. 'audio/webm' is usually best for AI, 'audio/mp4' for iOS.
       let mimeType = '';
       if (MediaRecorder.isTypeSupported('audio/webm')) {
         mimeType = 'audio/webm';
       } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
         mimeType = 'audio/mp4';
       } else {
-        mimeType = ''; // Let browser choose default
+        mimeType = ''; 
       }
       
       const options = mimeType ? { mimeType } : undefined;
@@ -92,7 +91,7 @@ const TranslationView: React.FC = () => {
       };
       
       mediaRecorder.onstop = async () => {
-        const finalMimeType = mediaRecorder.mimeType || mimeType || 'audio/webm'; // Fallback
+        const finalMimeType = mediaRecorder.mimeType || mimeType || 'audio/webm';
         const audioBlob = new Blob(audioChunksRef.current, { type: finalMimeType });
         
         setLoading(true);
@@ -100,7 +99,6 @@ const TranslationView: React.FC = () => {
         reader.readAsDataURL(audioBlob);
         reader.onloadend = async () => {
           const base64String = (reader.result as string);
-          // Safety check for base64
           if (base64String.includes(',')) {
             const base64Audio = base64String.split(',')[1];
             const res = await translateAudio(base64Audio, finalMimeType, targetLang.name);
@@ -301,7 +299,7 @@ const TranslationView: React.FC = () => {
                <p className="text-gray-800 font-bold text-lg">{t('translate.thinking')}</p>
              </div>
            ) : result ? (
-             <div className={`bg-afri-secondary text-white rounded-[2rem] p-8 shadow-xl relative overflow-hidden group transition-colors ${result.error ? 'bg-red-600' : ''}`}>
+             <div className={`bg-afri-secondary text-white rounded-[2rem] p-8 shadow-xl relative overflow-hidden group transition-colors ${result.error ? 'bg-orange-500' : ''}`}>
                
                {result.error && (
                  <div className="absolute top-4 right-4 text-white/50">
@@ -311,7 +309,7 @@ const TranslationView: React.FC = () => {
 
                <div className="flex justify-between items-start mb-6 relative z-10">
                  <span className="px-3 py-1 bg-white/20 rounded-lg text-xs font-bold tracking-widest uppercase backdrop-blur-sm border border-white/10">
-                   {result.error ? 'Erro / Error' : targetLang.name}
+                   {result.error ? 'Aviso' : targetLang.name}
                  </span>
                  <div className="flex gap-2">
                    {!result.error && (
@@ -327,21 +325,29 @@ const TranslationView: React.FC = () => {
                  </div>
                </div>
 
-               <p className="text-2xl md:text-3xl font-bold leading-relaxed tracking-tight relative z-10 break-words">
-                 {result.translated}
-               </p>
-               
-               {result.error && (
-                 <p className="text-white/80 text-sm mt-4 font-mono bg-black/20 p-2 rounded-lg">
-                   Detalhes: {result.error}
-                 </p>
-               )}
-
-               {result.pronunciation && (
-                 <div className="mt-6 pt-4 border-t border-white/10 relative z-10">
-                    <p className="text-green-200 text-sm font-medium mb-1">{t('translate.pronunciation')}</p>
-                    <p className="font-mono text-green-50 text-lg italic tracking-wide">{result.pronunciation}</p>
-                 </div>
+               {result.error ? (
+                  <div className="text-center py-4">
+                    <p className="text-xl font-bold mb-2">{result.error}</p>
+                    <button 
+                      onClick={handleTranslateText} 
+                      className="mt-4 bg-white text-orange-600 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 mx-auto hover:bg-gray-100"
+                    >
+                      <RefreshCw size={16} /> Tentar Novamente
+                    </button>
+                  </div>
+               ) : (
+                 <>
+                  <p className="text-2xl md:text-3xl font-bold leading-relaxed tracking-tight relative z-10 break-words">
+                    {result.translated}
+                  </p>
+                  
+                  {result.pronunciation && (
+                    <div className="mt-6 pt-4 border-t border-white/10 relative z-10">
+                        <p className="text-green-200 text-sm font-medium mb-1">{t('translate.pronunciation')}</p>
+                        <p className="font-mono text-green-50 text-lg italic tracking-wide">{result.pronunciation}</p>
+                    </div>
+                  )}
+                 </>
                )}
              </div>
            ) : null}
