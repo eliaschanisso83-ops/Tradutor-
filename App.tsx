@@ -7,6 +7,7 @@ import TouristView from './components/TouristView';
 import CommunityView from './components/CommunityView';
 import ProfileDialog from './components/ProfileDialog';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import DataDeletion from './components/DataDeletion';
 import { ViewState } from './types';
 import { Globe } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -14,19 +15,22 @@ import { UserProvider, useUser } from './contexts/UserContext';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('translate');
-  const [isPrivacyRoute, setIsPrivacyRoute] = useState(false);
+  const [route, setRoute] = useState<string>('/');
   const { language, setLanguage } = useLanguage();
   const { user, setProfileOpen } = useUser();
 
-  // Simple routing check for Privacy Policy
+  // Simple routing check
   useEffect(() => {
-    if (window.location.pathname === '/privacy') {
-      setIsPrivacyRoute(true);
-    }
+    const path = window.location.pathname;
+    setRoute(path);
   }, []);
 
-  if (isPrivacyRoute) {
+  if (route === '/privacy') {
     return <PrivacyPolicy />;
+  }
+
+  if (route === '/data-deletion') {
+    return <DataDeletion />;
   }
 
   const renderView = () => {

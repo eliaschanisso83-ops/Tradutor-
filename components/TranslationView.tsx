@@ -42,10 +42,26 @@ const TranslationView: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   
+  // Cache for translations: key = "source-target-text", value = result
+  const translationCache = useRef<Record<string, { translated: string; pronunciation: string }>>({});
+  
   const handleTranslateText = async () => {
-    if (!inputText.trim()) return;
+    const trimmedInput = inputText.trim();
+    if (!trimmedInput) return;
+    
+    // Check Cache First
+    const cacheKey = `${sourceLang.code}-${targetLang.code}-${trimmedInput.toLowerCase()}`;
+    if (translationCache.current[cacheKey]) {
+      setResult(translationCache.current[cacheKey]);
+      return;
+    }
+
     setLoading(true);
-    const res = await translateText(inputText, sourceLang.name, targetLang.name);
+    const res = await translateText(trimmedInput, sourceLang.name, targetLang.name);
+    
+    // Save to Cache
+    translationCache.current[cacheKey] = res;
+    
     setResult(res);
     setLoading(false);
   };

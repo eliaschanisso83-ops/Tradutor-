@@ -33,26 +33,16 @@ export const translateText = async (
   targetLang: string
 ): Promise<{ translated: string; pronunciation: string }> => {
   try {
-    const prompt = `
-      Translate the following text from ${sourceLang} to ${targetLang}.
-      If ${targetLang} is a local African language with limited resources, use your knowledge of linguistic roots (Bantu, etc.) to provide the most accurate translation possible.
-      
-      Also provide a pronunciation guide (phonetic approximation).
-      
-      Input Text: "${text}"
-      
-      Return JSON format:
-      {
-        "translated": "The translated text",
-        "pronunciation": "The phonetic pronunciation"
-      }
-    `;
+    // Optimized prompt for speed
+    const prompt = `Translate "${text}" from ${sourceLang} to ${targetLang}. JSON format: {"translated": "...", "pronunciation": "..."}. If ${targetLang} is African, use accurate linguistic roots.`;
 
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: TEXT_MODEL,
       contents: prompt,
       config: {
-        responseMimeType: 'application/json'
+        responseMimeType: 'application/json',
+        // CRITICAL FOR SPEED: Disable thinking budget for simple translation tasks
+        thinkingConfig: { thinkingBudget: 0 } 
       }
     });
 
@@ -90,6 +80,10 @@ export const translateImage = async (
           },
         ],
       },
+      // Disable thinking for image analysis speed as well
+      config: {
+         thinkingConfig: { thinkingBudget: 0 }
+      }
     });
 
     return response.text || "Could not analyze image.";
@@ -128,7 +122,8 @@ export const translateAudio = async (
         ],
       },
       config: {
-        responseMimeType: 'application/json'
+        responseMimeType: 'application/json',
+        thinkingConfig: { thinkingBudget: 0 }
       }
     });
 
@@ -159,7 +154,9 @@ export const chatWithTutor = async (
         The user is learning ${learningLang}. 
         Correct their grammar gently. Explain cultural context when relevant.
         Keep responses concise and encouraging. 
-        If asked about specific dialects (e.g. Ndau vs Shona), explain the differences.`
+        If asked about specific dialects (e.g. Ndau vs Shona), explain the differences.`,
+        // We keep a small budget for the Tutor to allow for better explanations, but low enough to be fast
+        thinkingConfig: { thinkingBudget: 1024 }
       }
     });
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
-import { X, Save, Loader2, Download, Shield } from 'lucide-react';
+import { X, Save, Loader2, Download, Shield, Trash2, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const AVATARS = ['🦁', '🐘', '🦒', '🦓', '🐆', '🌍', '🥁', '🌞', '💎', '🏺', '🥘', '🛖'];
@@ -13,20 +13,20 @@ const ProfileDialog: React.FC = () => {
   const [selectedAvatar, setSelectedAvatar] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (user && isProfileOpen) {
       setUsername(user.username === 'Guest Explorer' ? '' : user.username);
       setSelectedAvatar(user.avatar);
+      setShowDeleteConfirm(false);
     }
   }, [user, isProfileOpen]);
 
   // Listen for the PWA install event
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: any) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setInstallPrompt(e);
     };
 
@@ -39,20 +39,12 @@ const ProfileDialog: React.FC = () => {
 
   const handleInstallClick = async () => {
     if (!installPrompt) return;
-    
-    // Show the install prompt
     installPrompt.prompt();
-    
-    // Wait for the user to respond to the prompt
     const { outcome } = await installPrompt.userChoice;
-    
-    // We've used the prompt, and can't use it again, throw it away
     if (outcome === 'accepted') {
       setInstallPrompt(null);
     }
   };
-
-  if (!isProfileOpen) return null;
 
   const handleSave = async () => {
     if (!username.trim()) return;
@@ -61,6 +53,15 @@ const ProfileDialog: React.FC = () => {
     setIsSaving(false);
     setProfileOpen(false);
   };
+
+  const handleDeleteAccount = () => {
+    // Clear local storage
+    localStorage.clear();
+    // Ideally call Supabase to delete row, but for MVP local clear + reload is sufficient to reset "identity" on device
+    window.location.reload();
+  };
+
+  if (!isProfileOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -116,7 +117,6 @@ const ProfileDialog: React.FC = () => {
               Save Profile
             </button>
             
-            {/* Install App Button - Only shows if browser supports it and hasn't been installed yet */}
             {installPrompt && (
               <button
                 onClick={handleInstallClick}
@@ -127,17 +127,49 @@ const ProfileDialog: React.FC = () => {
               </button>
             )}
 
-            {/* Privacy Policy Link - External Browser */}
-            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-center">
+            {/* Privacy & Danger Zone */}
+            <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col gap-2">
                <a 
                  href="/privacy" 
                  target="_blank" 
                  rel="noopener noreferrer"
-                 className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-afri-primary font-medium transition-colors"
+                 className="flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-afri-primary font-medium transition-colors py-2"
                >
                  <Shield size={12} />
                  {t('profile.privacy_policy')}
                </a>
+
+               {/* Delete Account Section */}
+               {!showDeleteConfirm ? (
+                 <button 
+                   onClick={() => setShowDeleteConfirm(true)}
+                   className="flex items-center justify-center gap-1.5 text-xs text-red-400 hover:text-red-600 font-medium transition-colors"
+                 >
+                   Delete Account
+                 </button>
+               ) : (
+                 <div className="bg-red-50 p-3 rounded-xl border border-red-100 text-center animate-in fade-in">
+                   <div className="flex items-center justify-center gap-2 text-red-600 font-bold text-xs mb-2">
+                     <AlertTriangle size={14} />
+                     Are you sure?
+                   </div>
+                   <p className="text-[10px] text-gray-600 mb-2">This will reset your progress and remove your profile from this device.</p>
+                   <div className="flex gap-2">
+                     <button 
+                       onClick={() => setShowDeleteConfirm(false)}
+                       className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg text-xs font-bold"
+                     >
+                       Cancel
+                     </button>
+                     <button 
+                       onClick={handleDeleteAccount}
+                       className="flex-1 bg-red-500 text-white py-2 rounded-lg text-xs font-bold hover:bg-red-600"
+                     >
+                       Yes, Delete
+                     </button>
+                   </div>
+                 </div>
+               )}
             </div>
           </div>
         </div>
