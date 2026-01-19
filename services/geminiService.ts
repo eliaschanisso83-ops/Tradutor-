@@ -1,30 +1,25 @@
 import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 
-// Initialization strictly using process.env.API_KEY as per guidelines.
-// Ensure your build tool (Vite) defines 'process.env.API_KEY'.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Ensure the API Key is valid string before initializing
+const apiKey = process.env.API_KEY;
+const isValidKey = apiKey && apiKey.length > 10 && apiKey !== 'undefined';
 
-// Using a highly stable model ID. 
-// gemini-3-flash-preview is powerful but if it fails we handle it gracefully.
+// Initialization strictly using process.env.API_KEY
+const ai = new GoogleGenAI({ apiKey: isValidKey ? apiKey : 'MISSING_KEY' });
+
+// Using gemini-3-flash-preview as per instructions.
 const MULTIMODAL_MODEL = 'gemini-3-flash-preview';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 
-// Robust JSON extractor that finds JSON object anywhere in text
+// Robust JSON extractor
 const extractJSON = (text: string): any => {
   try {
-    // 1. Try direct parse
     return JSON.parse(text);
   } catch (e) {
-    // 2. Try to find { ... } block
     const match = text.match(/\{[\s\S]*\}/);
     if (match) {
-      try {
-        return JSON.parse(match[0]);
-      } catch (e2) {
-        console.warn("JSON Parse failed on extraction", e2);
-      }
+      try { return JSON.parse(match[0]); } catch (e2) {}
     }
-    // 3. Fallback
     return {};
   }
 };
@@ -35,31 +30,28 @@ export const translateText = async (
   targetLang: string
 ): Promise<{ translated: string; pronunciation: string; error?: string }> => {
   
-  if (!process.env.API_KEY) {
-    console.error("API KEY IS MISSING");
-    return { translated: "Erro: Chave de API não configurada.", pronunciation: "", error: "Missing API Key" };
+  if (!isValidKey) {
+    console.error("API Key Check Failed. Value exists:", !!apiKey);
+    return { translated: "Erro de Configuração", pronunciation: "", error: "Chave de API inválida ou ausente no Vercel." };
   }
 
   try {
-    // Simplified prompt - No strict JSON mode in config to avoid 400 errors
     const prompt = `Translate this text from ${sourceLang} to ${targetLang}.
     Text: "${text}"
     
-    Output ONLY a JSON object with this format:
+    Output ONLY a JSON object:
     {"translated": "YOUR_TRANSLATION", "pronunciation": "PRONUNCIATION_GUIDE"}
     `;
 
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
       contents: { parts: [{ text: prompt }] },
-      // Removed 'responseMimeType: application/json' as it causes failures on some keys
     });
 
     const rawText = response.text || "{}";
     const parsed = extractJSON(rawText);
     
     if (!parsed.translated) {
-      // Fallback if model just output text
       return { translated: rawText, pronunciation: "" };
     }
     
@@ -68,9 +60,8 @@ export const translateText = async (
       pronunciation: parsed.pronunciation || '' 
     };
   } catch (error: any) {
-    console.error("Translation Critical Error:", error);
-    const msg = error.message || error.toString();
-    return { translated: "Erro de Conexão.", pronunciation: "", error: msg };
+    console.error("Gemini Error:", error);
+    return { translated: "Erro de Conexão", pronunciation: "", error: error.message || "Verifique a API Key." };
   }
 };
 
@@ -79,30 +70,22 @@ export const translateImage = async (
   mimeType: string,
   targetLang: string
 ): Promise<string> => {
-  if (!process.env.API_KEY) return "Erro: Chave de API faltando.";
+  if (!isValidKey) return "Erro: Chave de API faltando.";
 
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
       contents: {
         parts: [
-          {
-            inlineData: {
-              mimeType: mimeType,
-              data: base64Image,
-            },
-          },
-          {
-            text: `Translate text in image to ${targetLang}. If no text, describe image in ${targetLang}. Return only the result.`,
-          },
+          { inlineData: { mimeType, data: base64Image } },
+          { text: `Translate text in image to ${targetLang}. If no text, describe image in ${targetLang}.` },
         ],
       },
     });
 
-    return response.text || "Não foi possível analisar.";
+    return response.text || "Sem resultado.";
   } catch (error: any) {
-    console.error("Vision error:", error);
-    return `Erro: ${error.message || "Falha na imagem"}`;
+    return `Erro: ${error.message}`;
   }
 };
 
@@ -111,36 +94,26 @@ export const translateAudio = async (
   mimeType: string,
   targetLang: string
 ): Promise<{ transcription: string; translation: string }> => {
-  if (!process.env.API_KEY) return { transcription: "Erro API", translation: "Chave faltando" };
+  if (!isValidKey) return { transcription: "Erro", translation: "Chave ausente" };
 
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
       contents: {
         parts: [
-          {
-            inlineData: {
-              mimeType: mimeType,
-              data: base64Audio,
-            },
-          },
-          {
-            text: `Transcribe and translate to ${targetLang}. Return JSON: {"transcription": "...", "translation": "..."}`,
-          },
+          { inlineData: { mimeType, data: base64Audio } },
+          { text: `Transcribe and translate to ${targetLang}. JSON: {"transcription": "...", "translation": "..."}` },
         ],
       },
     });
 
     const parsed = extractJSON(response.text || "{}");
-    
     return {
-      transcription: parsed.transcription || "Áudio não detectado",
+      transcription: parsed.transcription || "(Áudio)",
       translation: parsed.translation || "Falha na tradução"
     };
-
   } catch (error: any) {
-    console.error("Audio error details:", error);
-    return { transcription: "Erro no Áudio", translation: error.message || "Tente novamente" };
+    return { transcription: "Erro", translation: error.message };
   }
 };
 
@@ -149,27 +122,24 @@ export const chatWithTutor = async (
   message: string,
   learningLang: string
 ): Promise<string> => {
-  if (!process.env.API_KEY) return "Erro: Configurar API Key.";
+  if (!isValidKey) return "Erro: API Key inválida.";
 
   try {
     const chat = ai.chats.create({
       model: MULTIMODAL_MODEL,
       history: history,
-      config: {
-        systemInstruction: `You are AfriLingo, a tutor for ${learningLang}. Keep it short.`,
-      }
+      config: { systemInstruction: `Tutor for ${learningLang}. Concise.` }
     });
 
     const result = await chat.sendMessage({ message });
     return result.text || "...";
   } catch (error) {
-    console.error("Chat error:", error);
-    return "Erro de conexão com o Tutor.";
+    return "Erro de conexão.";
   }
 };
 
 export const generateSpeech = async (text: string): Promise<string | null> => {
-  if (!process.env.API_KEY) return null;
+  if (!isValidKey) return null;
 
   try {
     const response = await ai.models.generateContent({
@@ -177,17 +147,12 @@ export const generateSpeech = async (text: string): Promise<string | null> => {
       contents: { parts: [{ text }] },
       config: {
         responseModalities: [Modality.AUDIO],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Kore' },
-          },
-        },
+        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
       },
     });
-    
     return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
   } catch (error) {
-    console.error("TTS error:", error);
+    console.error(error);
     return null;
   }
 };
