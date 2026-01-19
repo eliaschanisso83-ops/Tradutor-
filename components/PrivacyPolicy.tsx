@@ -3,8 +3,8 @@ import { Shield, ArrowLeft } from 'lucide-react';
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white text-gray-800 p-6 md:p-12 font-sans">
-      <div className="max-w-3xl mx-auto">
+    <div className="h-full w-full bg-white text-gray-800 font-sans overflow-y-auto">
+      <div className="max-w-3xl mx-auto p-6 md:p-12">
         <header className="mb-8 border-b pb-6">
           <div className="flex items-center gap-2 mb-4">
             <Shield className="text-orange-600" size={32} />
@@ -16,7 +16,7 @@ const PrivacyPolicy: React.FC = () => {
           </a>
         </header>
 
-        <div className="space-y-6 text-sm md:text-base leading-relaxed">
+        <div className="space-y-6 text-sm md:text-base leading-relaxed pb-12">
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-2">1. Introduction</h2>
             <p>
@@ -68,7 +68,7 @@ const PrivacyPolicy: React.FC = () => {
           </section>
         </div>
         
-        <footer className="mt-12 pt-6 border-t text-center text-gray-400 text-xs">
+        <footer className="mt-12 pt-6 border-t text-center text-gray-400 text-xs pb-8">
           &copy; {new Date().getFullYear()} AfriLingo AI. All rights reserved.
         </footer>
       </div>
