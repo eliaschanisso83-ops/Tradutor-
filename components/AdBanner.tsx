@@ -16,9 +16,12 @@ const AdBanner: React.FC<AdBannerProps> = ({ slotId = '1234567890', format = 'au
     if (DEV_MODE) return;
     try {
       const adsbygoogle = (window as any).adsbygoogle || [];
+      // Prevent pushing if already pushed for this slot (basic check) usually adsense handles it, 
+      // but catching errors is important.
       adsbygoogle.push({});
     } catch (e) {
-      console.error('AdSense error:', e);
+      // Ignore adsense errors (often caused by ad blockers)
+      console.debug('AdSense info:', e);
     }
   }, []);
 

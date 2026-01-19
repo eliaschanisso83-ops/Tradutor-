@@ -83,28 +83,62 @@ const TranslationView: React.FC = () => {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      
+      // FIX: Determine best supported mime type for the device (iOS vs Android)
+      let mimeType = '';
+      const types = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+        'audio/ogg'
+      ];
+      
+      for (const type of types) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          mimeType = type;
+          break;
+        }
+      }
+      
+      // Fallback if no specific type found (let browser decide default, but might be tricky for backend)
+      // Usually one of the above works in modern browsers.
+      const options = mimeType ? { mimeType } : undefined;
+
+      const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
-      mediaRecorder.ondataavailable = (event) => { if (event.data.size > 0) audioChunksRef.current.push(event.data); };
+      
+      mediaRecorder.ondataavailable = (event) => { 
+        if (event.data.size > 0) audioChunksRef.current.push(event.data); 
+      };
+      
       mediaRecorder.onstop = async () => {
-        const mimeType = mediaRecorder.mimeType || 'audio/webm';
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        const finalMimeType = mediaRecorder.mimeType || mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: finalMimeType });
+        
         setLoading(true);
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
         reader.onloadend = async () => {
           const base64String = (reader.result as string);
+          // Split safely
           const base64Audio = base64String.split(',')[1];
-          const res = await translateAudio(base64Audio, mimeType, targetLang.name);
+          const res = await translateAudio(base64Audio, finalMimeType, targetLang.name);
           setInputText(res.transcription);
           setResult({ translated: res.translation, pronunciation: '' });
           setLoading(false);
         };
+        
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach(track => track.stop());
       };
+      
       mediaRecorder.start();
       setIsRecording(true);
-    } catch (err) { alert("Could not access microphone."); }
+    } catch (err) { 
+      console.error("Mic Error:", err);
+      alert("Could not access microphone. Please allow permissions."); 
+    }
   };
 
   const stopRecording = () => {
@@ -125,18 +159,33 @@ const TranslationView: React.FC = () => {
   const handleSpeak = async () => {
     if (!result?.translated || isPlaying) return;
     setIsPlaying(true);
-    const audioData = await generateSpeech(result.translated);
-    if (audioData) {
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
+    
+    try {
+      // 1. Initialize AudioContext (handle iOS unlock)
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const audioContext = new AudioContextClass({sampleRate: 24000});
+      
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+
+      // 2. Fetch Audio
+      const audioData = await generateSpeech(result.translated);
+      
+      if (audioData) {
         const audioBuffer = await decodeAudioData(decode(audioData), audioContext);
         const source = audioContext.createBufferSource();
         source.buffer = audioBuffer;
         source.connect(audioContext.destination);
         source.onended = () => setIsPlaying(false);
         source.start(0);
-      } catch (e) { setIsPlaying(false); }
-    } else { setIsPlaying(false); }
+      } else {
+        setIsPlaying(false);
+      }
+    } catch (e) {
+      console.error("Playback error", e);
+      setIsPlaying(false);
+    }
   };
 
   return (
