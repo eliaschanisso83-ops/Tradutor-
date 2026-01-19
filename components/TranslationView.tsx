@@ -16,9 +16,11 @@ function decode(base64: string) {
   return bytes;
 }
 
+// Decode logic matching the TTS model output (24kHz)
 async function decodeAudioData(data: Uint8Array, ctx: AudioContext): Promise<AudioBuffer> {
   const dataInt16 = new Int16Array(data.buffer);
   const frameCount = dataInt16.length;
+  // We explicitly create the buffer at 24000 because that is the source format from Gemini
   const buffer = ctx.createBuffer(1, frameCount, 24000);
   const channelData = buffer.getChannelData(0);
   for (let i = 0; i < frameCount; i++) {
@@ -42,14 +44,13 @@ const TranslationView: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   
-  // Cache for translations: key = "source-target-text", value = result
+  // Cache for translations
   const translationCache = useRef<Record<string, { translated: string; pronunciation: string }>>({});
   
   const handleTranslateText = async () => {
     const trimmedInput = inputText.trim();
     if (!trimmedInput) return;
     
-    // Check Cache First
     const cacheKey = `${sourceLang.code}-${targetLang.code}-${trimmedInput.toLowerCase()}`;
     if (translationCache.current[cacheKey]) {
       setResult(translationCache.current[cacheKey]);
@@ -59,8 +60,10 @@ const TranslationView: React.FC = () => {
     setLoading(true);
     const res = await translateText(trimmedInput, sourceLang.name, targetLang.name);
     
-    // Save to Cache
-    translationCache.current[cacheKey] = res;
+    // Only cache successful translations
+    if (!res.translated.startsWith('Error') && !res.translated.startsWith('Connection')) {
+      translationCache.current[cacheKey] = res;
+    }
     
     setResult(res);
     setLoading(false);
@@ -84,7 +87,7 @@ const TranslationView: React.FC = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // FIX: Determine best supported mime type for the device (iOS vs Android)
+      // Select best supported MIME type for mobile compatibility
       let mimeType = '';
       const types = [
         'audio/webm;codecs=opus',
@@ -100,10 +103,7 @@ const TranslationView: React.FC = () => {
         }
       }
       
-      // Fallback if no specific type found (let browser decide default, but might be tricky for backend)
-      // Usually one of the above works in modern browsers.
       const options = mimeType ? { mimeType } : undefined;
-
       const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
@@ -121,7 +121,6 @@ const TranslationView: React.FC = () => {
         reader.readAsDataURL(audioBlob);
         reader.onloadend = async () => {
           const base64String = (reader.result as string);
-          // Split safely
           const base64Audio = base64String.split(',')[1];
           const res = await translateAudio(base64Audio, finalMimeType, targetLang.name);
           setInputText(res.transcription);
@@ -129,7 +128,6 @@ const TranslationView: React.FC = () => {
           setLoading(false);
         };
         
-        // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
       };
       
@@ -137,7 +135,7 @@ const TranslationView: React.FC = () => {
       setIsRecording(true);
     } catch (err) { 
       console.error("Mic Error:", err);
-      alert("Could not access microphone. Please allow permissions."); 
+      alert("Could not access microphone. Please allow permissions in your browser settings."); 
     }
   };
 
@@ -161,18 +159,19 @@ const TranslationView: React.FC = () => {
     setIsPlaying(true);
     
     try {
-      // 1. Initialize AudioContext (handle iOS unlock)
+      // FIX: Use default constructor without arguments to let browser select native sampleRate.
+      // Explicitly setting sampleRate causes failures on some mobile devices.
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      const audioContext = new AudioContextClass({sampleRate: 24000});
+      const audioContext = new AudioContextClass(); 
       
       if (audioContext.state === 'suspended') {
         await audioContext.resume();
       }
 
-      // 2. Fetch Audio
       const audioData = await generateSpeech(result.translated);
       
       if (audioData) {
+        // decodeAudioData handles the 24k source format
         const audioBuffer = await decodeAudioData(decode(audioData), audioContext);
         const source = audioContext.createBufferSource();
         source.buffer = audioBuffer;
@@ -329,7 +328,7 @@ const TranslationView: React.FC = () => {
                <p className="text-gray-800 font-bold text-lg">{t('translate.thinking')}</p>
              </div>
            ) : result ? (
-             <div className="bg-afri-secondary text-white rounded-[2rem] p-8 shadow-xl relative overflow-hidden group">
+             <div className={`bg-afri-secondary text-white rounded-[2rem] p-8 shadow-xl relative overflow-hidden group transition-colors ${result.translated.includes('Error') ? 'bg-red-500' : ''}`}>
                {/* Pattern overlay */}
                <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none"></div>
                
@@ -338,12 +337,16 @@ const TranslationView: React.FC = () => {
                    {targetLang.name}
                  </span>
                  <div className="flex gap-2">
-                   <button onClick={handleSpeak} disabled={isPlaying} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-all active:scale-90">
-                     {isPlaying ? <Loader2 size={20} className="animate-spin" /> : <Volume2 size={20} />}
-                   </button>
-                   <button onClick={handleCopy} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-all active:scale-90">
-                     {copied ? <Check size={20} /> : <Copy size={20} />}
-                   </button>
+                   {!result.translated.includes('Error') && (
+                     <>
+                       <button onClick={handleSpeak} disabled={isPlaying} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-all active:scale-90">
+                         {isPlaying ? <Loader2 size={20} className="animate-spin" /> : <Volume2 size={20} />}
+                       </button>
+                       <button onClick={handleCopy} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-all active:scale-90">
+                         {copied ? <Check size={20} /> : <Copy size={20} />}
+                       </button>
+                     </>
+                   )}
                  </div>
                </div>
 

@@ -5,7 +5,7 @@ import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // We use the Multimodal Flash model for Text, Audio analysis, and Image analysis
-// It is faster and handles file uploads better than the specialized models.
+// gemini-3-flash-preview is the current recommendation for speed and multimodal capabilities.
 const MULTIMODAL_MODEL = 'gemini-3-flash-preview';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 
@@ -32,30 +32,40 @@ export const translateText = async (
   sourceLang: string,
   targetLang: string
 ): Promise<{ translated: string; pronunciation: string }> => {
+  if (!process.env.API_KEY) {
+    return { translated: "Error: Missing API Key.", pronunciation: "" };
+  }
+
   try {
-    // Optimized prompt for speed
-    const prompt = `Translate "${text}" from ${sourceLang} to ${targetLang}. JSON format: {"translated": "...", "pronunciation": "..."}. If ${targetLang} is African, use accurate linguistic roots.`;
+    const prompt = `Translate the following text from ${sourceLang} to ${targetLang}.
+    Text: "${text}"
+    
+    Return strict JSON format:
+    {
+      "translated": "The translation",
+      "pronunciation": "Phonetic pronunciation guide if applicable"
+    }
+    
+    If ${targetLang} is an African language, ensure deep linguistic accuracy.`;
 
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
-      contents: prompt,
+      contents: { parts: [{ text: prompt }] },
       config: {
         responseMimeType: 'application/json',
-        // CRITICAL FOR SPEED: Disable thinking budget for simple translation tasks
-        thinkingConfig: { thinkingBudget: 0 } 
+        // Removed thinkingConfig to maximize compatibility and avoid 400 errors with some keys/regions
       }
     });
 
     const parsed = JSON.parse(cleanJsonOutput(response.text || '{}'));
     
     return { 
-      translated: parsed.translated || 'Translation error', 
+      translated: parsed.translated || 'Translation failed', 
       pronunciation: parsed.pronunciation || '' 
     };
   } catch (error) {
     console.error("Translation error:", error);
-    // Provide a more specific error if possible, or fall back to generic
-    return { translated: "Error: Check API Key or Connection.", pronunciation: "" };
+    return { translated: "Connection Error. Try again.", pronunciation: "" };
   }
 };
 
@@ -64,8 +74,9 @@ export const translateImage = async (
   mimeType: string,
   targetLang: string
 ): Promise<string> => {
+  if (!process.env.API_KEY) return "Error: Missing API Key";
+
   try {
-    // Using gemini-3-flash-preview for vision as it is robust for OCR + Translation
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
       contents: {
@@ -77,14 +88,10 @@ export const translateImage = async (
             },
           },
           {
-            text: `Analyze this image. Extract any text found and translate it to ${targetLang}. If there is no text, describe what is in the image in ${targetLang}. Return ONLY the translation or description.`,
+            text: `Analyze this image. Identify any text or main objects. Translate the findings to ${targetLang}. Return ONLY the translated text or description.`,
           },
         ],
       },
-      // Disable thinking for image analysis speed
-      config: {
-         thinkingConfig: { thinkingBudget: 0 }
-      }
     });
 
     return response.text || "Could not analyze image.";
@@ -99,9 +106,9 @@ export const translateAudio = async (
   mimeType: string,
   targetLang: string
 ): Promise<{ transcription: string; translation: string }> => {
+  if (!process.env.API_KEY) return { transcription: "Missing Key", translation: "Error" };
+
   try {
-    // Using gemini-3-flash-preview for audio analysis (transcription + translation)
-    // It accepts generic audio inputs better than the Native Audio live model.
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
       contents: {
@@ -113,27 +120,27 @@ export const translateAudio = async (
             },
           },
           {
-            text: `Transcribe the spoken audio verbatim. Then, translate it to ${targetLang}.
+            text: `Listen to this audio.
+            1. Transcribe it verbatim (original language).
+            2. Translate it to ${targetLang}.
             
-            Return format JSON:
+            Return JSON:
             {
-              "transcription": "original text",
-              "translation": "translated text"
-            }
-            `,
+              "transcription": "...",
+              "translation": "..."
+            }`,
           },
         ],
       },
       config: {
         responseMimeType: 'application/json',
-        thinkingConfig: { thinkingBudget: 0 }
       }
     });
 
     const parsed = JSON.parse(cleanJsonOutput(response.text || '{}'));
     
     return {
-      transcription: parsed.transcription || "No speech detected",
+      transcription: parsed.transcription || "(Unintelligible)",
       translation: parsed.translation || "Could not translate"
     };
 
@@ -148,18 +155,14 @@ export const chatWithTutor = async (
   message: string,
   learningLang: string
 ): Promise<string> => {
+  if (!process.env.API_KEY) return "Please configure your API Key.";
+
   try {
     const chat = ai.chats.create({
       model: MULTIMODAL_MODEL,
       history: history,
       config: {
-        systemInstruction: `You are AfriLingo, a helpful, patient, and knowledgeable African language tutor. 
-        The user is learning ${learningLang}. 
-        Correct their grammar gently. Explain cultural context when relevant.
-        Keep responses concise and encouraging. 
-        If asked about specific dialects (e.g. Ndau vs Shona), explain the differences.`,
-        // We keep a small budget for the Tutor to allow for better explanations, but low enough to be fast
-        thinkingConfig: { thinkingBudget: 1024 }
+        systemInstruction: `You are AfriLingo, a helpful African language tutor for ${learningLang}. Be concise, encouraging, and culturally relevant.`,
       }
     });
 
@@ -167,11 +170,13 @@ export const chatWithTutor = async (
     return result.text || "I didn't catch that.";
   } catch (error) {
     console.error("Chat error:", error);
-    return "Connection error. Please check your API Key.";
+    return "Connection error.";
   }
 };
 
 export const generateSpeech = async (text: string): Promise<string | null> => {
+  if (!process.env.API_KEY) return null;
+
   try {
     const response = await ai.models.generateContent({
       model: TTS_MODEL,
@@ -186,7 +191,6 @@ export const generateSpeech = async (text: string): Promise<string | null> => {
       },
     });
     
-    // Extract base64 audio data
     return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
   } catch (error) {
     console.error("TTS error:", error);
