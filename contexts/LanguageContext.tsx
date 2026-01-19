@@ -72,13 +72,16 @@ const translations = {
         submit: 'Submit Contribution',
         success: 'Thanks for contributing!'
       },
-      verify_title: 'Verify Translations',
+      verify_title: 'Verificar Traduções',
       verify_desc: 'Help us check if the AI got the Ndau greeting correct.',
       btn_review: 'Start Review',
       vocab_title: 'Add Vocabulary',
       vocab_desc: 'Add local slang from Maputo to our dictionary.',
       btn_contribute: 'Contribute',
-      sign_in: 'Sign In to Contribute'
+      sign_in: 'Entrar para Contribuir'
+    },
+    profile: {
+      privacy_policy: 'Privacy Policy'
     }
   },
   pt: {
@@ -157,6 +160,9 @@ const translations = {
       vocab_desc: 'Adicione gírias locais de Maputo ao nosso dicionário.',
       btn_contribute: 'Contribuir',
       sign_in: 'Entrar para Contribuir'
+    },
+    profile: {
+      privacy_policy: 'Política de Privacidade'
     }
   }
 };

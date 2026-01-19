@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
-import { X, Save, Loader2, Download } from 'lucide-react';
+import { X, Save, Loader2, Download, Shield } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const AVATARS = ['🦁', '🐘', '🦒', '🦓', '🐆', '🌍', '🥁', '🌞', '💎', '🏺', '🥘', '🛖'];
@@ -126,6 +126,19 @@ const ProfileDialog: React.FC = () => {
                 Install App
               </button>
             )}
+
+            {/* Privacy Policy Link - External Browser */}
+            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-center">
+               <a 
+                 href="/privacy" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-afri-primary font-medium transition-colors"
+               >
+                 <Shield size={12} />
+                 {t('profile.privacy_policy')}
+               </a>
+            </div>
           </div>
         </div>
       </div>
