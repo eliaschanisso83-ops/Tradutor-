@@ -4,9 +4,9 @@ import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 // Ensure your build tool (Vite) defines 'process.env.API_KEY'.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const TEXT_MODEL = 'gemini-3-flash-preview';
-const VISION_MODEL = 'gemini-2.5-flash-image';
-const AUDIO_MODEL = 'gemini-2.5-flash-native-audio-preview-12-2025';
+// We use the Multimodal Flash model for Text, Audio analysis, and Image analysis
+// It is faster and handles file uploads better than the specialized models.
+const MULTIMODAL_MODEL = 'gemini-3-flash-preview';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 
 // Helper to clean Markdown code blocks safely
@@ -37,7 +37,7 @@ export const translateText = async (
     const prompt = `Translate "${text}" from ${sourceLang} to ${targetLang}. JSON format: {"translated": "...", "pronunciation": "..."}. If ${targetLang} is African, use accurate linguistic roots.`;
 
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: TEXT_MODEL,
+      model: MULTIMODAL_MODEL,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -65,8 +65,9 @@ export const translateImage = async (
   targetLang: string
 ): Promise<string> => {
   try {
+    // Using gemini-3-flash-preview for vision as it is robust for OCR + Translation
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: VISION_MODEL,
+      model: MULTIMODAL_MODEL,
       contents: {
         parts: [
           {
@@ -80,7 +81,7 @@ export const translateImage = async (
           },
         ],
       },
-      // Disable thinking for image analysis speed as well
+      // Disable thinking for image analysis speed
       config: {
          thinkingConfig: { thinkingBudget: 0 }
       }
@@ -99,8 +100,10 @@ export const translateAudio = async (
   targetLang: string
 ): Promise<{ transcription: string; translation: string }> => {
   try {
+    // Using gemini-3-flash-preview for audio analysis (transcription + translation)
+    // It accepts generic audio inputs better than the Native Audio live model.
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: AUDIO_MODEL,
+      model: MULTIMODAL_MODEL,
       contents: {
         parts: [
           {
@@ -147,7 +150,7 @@ export const chatWithTutor = async (
 ): Promise<string> => {
   try {
     const chat = ai.chats.create({
-      model: TEXT_MODEL,
+      model: MULTIMODAL_MODEL,
       history: history,
       config: {
         systemInstruction: `You are AfriLingo, a helpful, patient, and knowledgeable African language tutor. 
