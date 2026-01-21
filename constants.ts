@@ -43,28 +43,72 @@ export const MOCK_LESSONS: Lesson[] = [
 
 export const TOURIST_PHRASES: TouristPhrase[] = [
   {
-    category: 'Essentials',
+    category: '👋 Greetings & Basics',
     phrases: [
       { original: 'Hello, how are you?' },
+      { original: 'I am fine, thank you.' },
+      { original: 'What is your name?' },
+      { original: 'My name is...' },
+      { original: 'Nice to meet you.' },
       { original: 'Thank you very much.' },
-      { original: 'Where is the bathroom?' },
+      { original: 'I do not understand.' },
+    ]
+  },
+  {
+    category: '🛒 Market & Bargaining',
+    phrases: [
       { original: 'How much does this cost?' },
+      { original: 'That is too expensive.' },
+      { original: 'Can you lower the price?' },
+      { original: 'I will take two of these.' },
+      { original: 'Do you have change?' },
+      { original: 'Is this fresh?' },
+      { original: 'I am just looking, thanks.' },
     ]
   },
   {
-    category: 'Transport',
+    category: '🚙 Transport (Chapa)',
     phrases: [
-      { original: 'Take me to this address.' },
+      { original: 'Where is the bus stop?' },
+      { original: 'I want to go to the city center.' },
       { original: 'Stop here, please.' },
-      { original: 'Is it far?' },
+      { original: 'How much is the fare?' },
+      { original: 'Is it far from here?' },
+      { original: 'Go straight, then turn left.' },
     ]
   },
   {
-    category: 'Dining',
+    category: '🍽️ Food & Dining',
     phrases: [
-      { original: 'I would like water.' },
+      { original: 'I am hungry.' },
+      { original: 'Can I see the menu?' },
+      { original: 'I would like water, please.' },
+      { original: 'Chicken with rice.' },
+      { original: 'Is it spicy?' },
       { original: 'The bill, please.' },
-      { original: 'Is this spicy?' },
+      { original: 'The food was delicious.' },
+    ]
+  },
+  {
+    category: '🚑 Help & Emergency',
+    phrases: [
+      { original: 'Help me, please.' },
+      { original: 'I am lost.' },
+      { original: 'Where is the bathroom?' },
+      { original: 'I need a doctor.' },
+      { original: 'Where is the police station?' },
+      { original: 'I lost my phone.' },
+    ]
+  },
+  {
+    category: '❤️ Social & Fun',
+    phrases: [
+      { original: 'You look beautiful.' },
+      { original: 'Do you want to dance?' },
+      { original: 'See you tomorrow.' },
+      { original: 'Can I have your number?' },
+      { original: 'Let us celebrate.' },
+      { original: 'No problem (Hakuna Matata).' },
     ]
   }
 ];
