@@ -43,3 +43,12 @@ export interface UserProfile {
   username: string;
   avatar: string; // Emoji
 }
+
+export interface RoleplayScenario {
+  id: string;
+  title: string;
+  emoji: string;
+  description: string;
+  aiPersona: string; // Instructions for the AI
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+}

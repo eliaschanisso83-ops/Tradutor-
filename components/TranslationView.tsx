@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SUPPORTED_LANGUAGES, AD_CONFIG } from '../constants';
 import { translateText, translateImage, translateAudio, generateSpeech } from '../services/geminiService';
 import { Language } from '../types';
-import { Mic, StopCircle, Image as ImageIcon, Sparkles, Copy, Check, Volume2, ArrowRightLeft, X, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Mic, StopCircle, Image as ImageIcon, Sparkles, Copy, Check, Volume2, ArrowRightLeft, X, Loader2, AlertTriangle, RefreshCw, Lightbulb } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import AdBanner from './AdBanner';
 
@@ -29,7 +29,7 @@ async function decodeAudioData(data: Uint8Array, ctx: AudioContext): Promise<Aud
 }
 
 const TranslationView: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [sourceLang, setSourceLang] = useState<Language>(SUPPORTED_LANGUAGES[1]); // English
   const [targetLang, setTargetLang] = useState<Language>(SUPPORTED_LANGUAGES[4]); // Changana
   const [inputText, setInputText] = useState('');
@@ -351,6 +351,22 @@ const TranslationView: React.FC = () => {
                )}
              </div>
            ) : null}
+        </div>
+      )}
+
+      {/* Cultural Fact Card (Shown when idle or after result) */}
+      {!result && !loading && (
+        <div className="mt-6 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 border border-yellow-100 shadow-sm animate-in fade-in slide-in-from-bottom-8 duration-700">
+           <div className="flex items-center gap-2 mb-3 text-orange-600 font-bold text-sm uppercase tracking-wide">
+             <Lightbulb size={18} />
+             {language === 'pt' ? 'Provérbio do Dia' : 'Proverb of the Day'}
+           </div>
+           <p className="text-lg text-gray-800 font-bold italic mb-2">
+             "Kuwa na subira ni kuwa na heri."
+           </p>
+           <p className="text-gray-600 text-sm">
+             (Swahili) <span className="font-medium">{language === 'pt' ? 'Ter paciência é uma bênção.' : 'To have patience is to be blessed.'}</span>
+           </p>
         </div>
       )}
       

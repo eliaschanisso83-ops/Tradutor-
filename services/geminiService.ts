@@ -104,7 +104,8 @@ export const chatWithTutor = async (
   history: { role: string; parts: { text: string }[] }[],
   message: string,
   learningLang: string,
-  interfaceLang: string // 'pt' or 'en'
+  interfaceLang: string, // 'pt' or 'en'
+  customSystemInstruction?: string // Optional override for Roleplay
 ): Promise<string> => {
   if (!isValidKey) return "Erro: API Key não configurada.";
 
@@ -117,14 +118,23 @@ export const chatWithTutor = async (
 
     const langName = interfaceLang === 'pt' ? 'Portuguese' : 'English';
 
+    // Default instruction if no custom roleplay provided
+    let instruction = `You are a helpful language tutor teaching ${learningLang}. 
+        You MUST communicate with the student in ${langName} (unless they are practicing the target language).
+        Keep answers short, encouraging, and educational.
+        If they ask something in ${langName}, reply in ${langName}.`;
+
+    if (customSystemInstruction) {
+        instruction = `${customSystemInstruction}. 
+        IMPORTANT: Use ${learningLang} for the roleplay character lines, but you can use ${langName} for corrections or hints if the user struggles.
+        Keep the conversation going naturally.`;
+    }
+
     const chat = ai.chats.create({
       model: MULTIMODAL_MODEL,
       history: safeHistory,
       config: { 
-        systemInstruction: `You are a helpful language tutor teaching ${learningLang}. 
-        You MUST communicate with the student in ${langName} (unless they are practicing the target language).
-        Keep answers short, encouraging, and educational.
-        If they ask something in ${langName}, reply in ${langName}.` 
+        systemInstruction: instruction
       }
     });
 
