@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MOCK_LESSONS_DATA, AD_CONFIG } from '../constants';
-import { Lesson } from '../types';
+import { MOCK_LESSONS_DATA, AD_CONFIG, SUPPORTED_LANGUAGES } from '../constants';
+import { Lesson, Language } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { generateQuiz, QuizQuestion } from '../services/geminiService';
 import AdBanner from './AdBanner';
-import { Loader2, CheckCircle, XCircle, Trophy, ArrowRight } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Trophy, ArrowRight, BookOpen } from 'lucide-react';
 
 type LearnMode = 'list' | 'loading' | 'quiz' | 'completed';
 
@@ -13,6 +13,11 @@ const LearnView: React.FC = () => {
   const [mode, setMode] = useState<LearnMode>('list');
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  
+  // Target Language for Learning
+  const [targetLessonLang, setTargetLessonLang] = useState<Language>(
+    SUPPORTED_LANGUAGES.find(l => l.code === 'changana') || SUPPORTED_LANGUAGES[4]
+  );
   
   // Quiz State
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -31,9 +36,8 @@ const LearnView: React.FC = () => {
     setActiveLesson(lesson);
     setMode('loading');
     
-    // Generate quiz questions passing the interface language
-    // Note: Hardcoding "Changana" as target language for demo, but prompts will be in User's Lang
-    const qs = await generateQuiz(lesson.title, "Changana", language);
+    // Generate quiz questions passing the interface language and selected target language
+    const qs = await generateQuiz(lesson.title, targetLessonLang.name, language);
     setQuestions(qs);
     setCurrentQIndex(0);
     setScore(0);
@@ -74,8 +78,8 @@ const LearnView: React.FC = () => {
         <h3 className="text-xl font-bold text-gray-800">{language === 'pt' ? 'Criando Lição...' : 'Creating Lesson...'}</h3>
         <p className="text-gray-500">
            {language === 'pt' 
-             ? `A IA está preparando perguntas para "${activeLesson?.title}".` 
-             : `AI is preparing questions for "${activeLesson?.title}".`}
+             ? `A IA está preparando perguntas de ${targetLessonLang.name} sobre "${activeLesson?.title}".` 
+             : `AI is preparing ${targetLessonLang.name} questions for "${activeLesson?.title}".`}
         </p>
       </div>
     );
@@ -98,10 +102,10 @@ const LearnView: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col max-w-2xl mx-auto w-full">
            <div className="flex justify-between items-center mb-6">
-              <span className="text-gray-400 font-bold uppercase text-xs tracking-widest">{activeLesson.title}</span>
+              <span className="text-gray-400 font-bold uppercase text-xs tracking-widest">{activeLesson.title} ({targetLessonLang.name})</span>
               <button onClick={reset} className="text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
            </div>
-
+           
            <h2 className="text-2xl font-bold text-gray-800 mb-8 leading-relaxed">
              {currentQ.question}
            </h2>
@@ -182,7 +186,7 @@ const LearnView: React.FC = () => {
 
   // 3. Completed State
   if (mode === 'completed' && activeLesson) {
-    return (
+     return (
       <div className="h-full flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-orange-50 p-8 text-center relative overflow-hidden">
         {/* Confetti Background Effect (CSS only simplification) */}
         <div className="absolute inset-0 overflow-hidden opacity-20 pointer-events-none">
@@ -226,7 +230,7 @@ const LearnView: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         
         {/* Header Stats */}
-        <header className="mb-8 flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
+        <header className="mb-8 flex flex-col md:flex-row gap-4 md:items-center justify-between bg-white p-4 rounded-2xl shadow-sm">
           <div className="flex items-center gap-3">
              <div className="relative w-12 h-12 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90 text-gray-200" viewBox="0 0 36 36">
@@ -240,8 +244,22 @@ const LearnView: React.FC = () => {
                <h2 className="text-lg font-bold text-gray-800">{t('learn.fire')} 🔥</h2>
              </div>
           </div>
-          <div className="bg-yellow-50 px-4 py-2 rounded-xl border border-yellow-200 flex items-center gap-2">
-            <span>💎</span> <span className="font-bold text-yellow-700">450 XP</span>
+
+          {/* Target Language Selector for Learn Mode */}
+          <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-xl border border-gray-200">
+             <BookOpen size={18} className="text-afri-primary" />
+             <div className="flex flex-col">
+                <span className="text-[10px] text-gray-400 font-bold uppercase leading-none">{language === 'pt' ? 'Aprender' : 'Learning'}</span>
+                <select 
+                  value={targetLessonLang.code}
+                  onChange={(e) => setTargetLessonLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || targetLessonLang)}
+                  className="bg-transparent font-bold text-gray-800 text-sm outline-none cursor-pointer"
+                >
+                  {SUPPORTED_LANGUAGES.filter(l => l.code !== language).map(l => (
+                    <option key={l.code} value={l.code}>{l.name}</option>
+                  ))}
+                </select>
+             </div>
           </div>
         </header>
 
@@ -254,7 +272,8 @@ const LearnView: React.FC = () => {
               onClick={() => startLesson(lesson)}
               className="bg-white rounded-3xl p-6 shadow-sm border-2 border-transparent hover:border-afri-primary transition-all cursor-pointer group relative overflow-hidden transform hover:-translate-y-1"
             >
-              {index !== lessons.length - 1 && (
+              {/* ... existing lesson card content ... */}
+               {index !== lessons.length - 1 && (
                 <div className="absolute left-1/2 bottom-0 w-0.5 h-10 bg-gray-200 translate-y-full z-0"></div>
               )}
 
@@ -280,7 +299,7 @@ const LearnView: React.FC = () => {
               
               <div className="mt-4 flex justify-end relative z-10">
                 <button className="bg-afri-primary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg active:scale-95 transition-transform">
-                  {t('learn.start_lesson')}
+                  {t('learn.start_lesson')} ({targetLessonLang.name})
                 </button>
               </div>
             </div>

@@ -40,17 +40,18 @@ const TouristView: React.FC = () => {
           <h2 className="text-3xl font-bold text-gray-800 mb-2">{t('tourist.title')} 🧭</h2>
           <p className="text-gray-600 mb-4">{t('tourist.subtitle')}</p>
           
-          <div className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm">
-            <span className="text-gray-500 text-sm">{t('tourist.translating_to')}</span>
+          <div className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+            <span className="text-gray-500 text-sm font-medium">{t('tourist.translating_to')}</span>
             <select 
               value={targetLang.code}
               onChange={(e) => {
                 setTargetLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || targetLang);
                 setTranslations({}); // Clear cache on language change
               }}
-              className="bg-transparent font-bold text-afri-primary outline-none"
+              className="bg-transparent font-bold text-afri-primary outline-none cursor-pointer"
             >
-              {SUPPORTED_LANGUAGES.map(l => (
+              {/* Filter out current app language from target options */}
+              {SUPPORTED_LANGUAGES.filter(l => l.code !== language).map(l => (
                 <option key={l.code} value={l.code}>{l.flag} {l.name}</option>
               ))}
             </select>
@@ -97,7 +98,7 @@ const TouristView: React.FC = () => {
                         ) : (
                           <button 
                             onClick={() => getTranslation(phrase.original)}
-                            className="text-sm text-afri-primary underline decoration-dotted"
+                            className="text-sm text-afri-primary underline decoration-dotted font-medium"
                           >
                             {t('tourist.tap_translate')}
                           </button>
