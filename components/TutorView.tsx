@@ -13,6 +13,9 @@ const TutorView: React.FC = () => {
   
   // Initialize or update the first message when language changes
   useEffect(() => {
+    // If empty or language changed radically, reset (simplification)
+    // Actually, preserving history but just starting fresh on lang change is better for UX
+    // But for now, let's just make sure the Intro is correct if it's the first render
     if (messages.length === 0) {
       resetChat();
     }
@@ -55,7 +58,13 @@ const TutorView: React.FC = () => {
       parts: [{ text: m.text }]
     }));
 
-    const responseText = await chatWithTutor(history, userMsg.text, "African Languages (Mozambique/Zimbabwe context)");
+    // Pass the current interface language (pt or en) to the service
+    const responseText = await chatWithTutor(
+      history, 
+      userMsg.text, 
+      "African Languages (Mozambique/Zimbabwe context)", 
+      language
+    );
 
     const aiMsg: ChatMessage = {
       id: (Date.now() + 1).toString(),

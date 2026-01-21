@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
-import { TOURIST_PHRASES, SUPPORTED_LANGUAGES } from '../constants';
+import React, { useState, useEffect } from 'react';
+import { TOURIST_PHRASES_DATA, SUPPORTED_LANGUAGES } from '../constants';
 import { translateText } from '../services/geminiService';
-import { Language } from '../types';
+import { Language, TouristPhrase } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const TouristView: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [targetLang, setTargetLang] = useState<Language>(SUPPORTED_LANGUAGES.find(l => l.code === 'swahili') || SUPPORTED_LANGUAGES[5]);
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(TOURIST_PHRASES[0].category);
+  const [phrases, setPhrases] = useState<TouristPhrase[]>([]);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loadingPhrase, setLoadingPhrase] = useState<string | null>(null);
+
+  // Load phrases based on interface language
+  useEffect(() => {
+    const currentPhrases = TOURIST_PHRASES_DATA[language] || TOURIST_PHRASES_DATA['en'];
+    setPhrases(currentPhrases);
+    // Set first category expanded by default
+    setExpandedCategory(currentPhrases[0].category);
+  }, [language]);
 
   const getTranslation = async (text: string) => {
     // Check cache first
@@ -17,16 +26,18 @@ const TouristView: React.FC = () => {
     if (translations[key]) return;
 
     setLoadingPhrase(text);
-    const result = await translateText(text, 'English', targetLang.name);
+    // Source language matches interface language (e.g. Portuguese -> Swahili)
+    const sourceLangName = language === 'pt' ? 'Portuguese' : 'English';
+    const result = await translateText(text, sourceLangName, targetLang.name);
     setTranslations(prev => ({ ...prev, [key]: result.translated }));
     setLoadingPhrase(null);
   };
 
   return (
-    <div className="h-full bg-afri-light overflow-y-auto p-4 md:p-8">
+    <div className="h-full bg-afri-subtle overflow-y-auto p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         <header className="mb-6">
-          <h2 className="text-3xl font-bold text-afri-dark mb-2">{t('tourist.title')} 🧭</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">{t('tourist.title')} 🧭</h2>
           <p className="text-gray-600 mb-4">{t('tourist.subtitle')}</p>
           
           <div className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm">
@@ -47,7 +58,7 @@ const TouristView: React.FC = () => {
         </header>
 
         <div className="space-y-4">
-          {TOURIST_PHRASES.map((category) => (
+          {phrases.map((category) => (
             <div key={category.category} className="bg-white rounded-2xl overflow-hidden shadow-sm">
               <button 
                 onClick={() => setExpandedCategory(expandedCategory === category.category ? null : category.category)}

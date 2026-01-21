@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import { MOCK_LESSONS, AD_CONFIG, SUPPORTED_LANGUAGES } from '../constants';
+import React, { useState, useEffect } from 'react';
+import { MOCK_LESSONS_DATA, AD_CONFIG } from '../constants';
 import { Lesson } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { generateQuiz, QuizQuestion } from '../services/geminiService';
 import AdBanner from './AdBanner';
-import { Loader2, CheckCircle, XCircle, Trophy, ArrowRight, BookOpen } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Trophy, ArrowRight } from 'lucide-react';
 
 type LearnMode = 'list' | 'loading' | 'quiz' | 'completed';
 
 const LearnView: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [mode, setMode] = useState<LearnMode>('list');
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
   
   // Quiz State
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -20,12 +21,19 @@ const LearnView: React.FC = () => {
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
 
+  // Update lessons when language changes
+  useEffect(() => {
+    const currentLessons = MOCK_LESSONS_DATA[language] || MOCK_LESSONS_DATA['en'];
+    setLessons(currentLessons);
+  }, [language]);
+
   const startLesson = async (lesson: Lesson) => {
     setActiveLesson(lesson);
     setMode('loading');
     
-    // Generate quiz questions
-    const qs = await generateQuiz(lesson.title, "Changana"); // Defaulting language for demo
+    // Generate quiz questions passing the interface language
+    // Note: Hardcoding "Changana" as target language for demo, but prompts will be in User's Lang
+    const qs = await generateQuiz(lesson.title, "Changana", language);
     setQuestions(qs);
     setCurrentQIndex(0);
     setScore(0);
@@ -63,8 +71,12 @@ const LearnView: React.FC = () => {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-gray-50 p-8 text-center">
         <Loader2 size={48} className="text-afri-primary animate-spin mb-4" />
-        <h3 className="text-xl font-bold text-gray-800">Criando Lição...</h3>
-        <p className="text-gray-500">A IA está preparando perguntas personalizadas para "{activeLesson?.title}".</p>
+        <h3 className="text-xl font-bold text-gray-800">{language === 'pt' ? 'Criando Lição...' : 'Creating Lesson...'}</h3>
+        <p className="text-gray-500">
+           {language === 'pt' 
+             ? `A IA está preparando perguntas para "${activeLesson?.title}".` 
+             : `AI is preparing questions for "${activeLesson?.title}".`}
+        </p>
       </div>
     );
   }
@@ -139,8 +151,8 @@ const LearnView: React.FC = () => {
                 <div className="flex-1">
                    <div className="flex items-center gap-2 mb-1">
                      {isCorrect 
-                       ? <span className="text-green-700 font-bold flex items-center gap-2"><CheckCircle size={20}/> Correto!</span>
-                       : <span className="text-red-600 font-bold flex items-center gap-2"><XCircle size={20}/> Incorreto</span>
+                       ? <span className="text-green-700 font-bold flex items-center gap-2"><CheckCircle size={20}/> {language === 'pt' ? 'Correto!' : 'Correct!'}</span>
+                       : <span className="text-red-600 font-bold flex items-center gap-2"><XCircle size={20}/> {language === 'pt' ? 'Incorreto' : 'Incorrect'}</span>
                      }
                    </div>
                    <p className="text-sm text-gray-600">{currentQ.explanation}</p>
@@ -150,7 +162,7 @@ const LearnView: React.FC = () => {
                   disabled 
                   className="bg-gray-200 text-gray-400 px-8 py-3 rounded-xl font-bold w-full md:w-auto"
                 >
-                  Verificar
+                  {language === 'pt' ? 'Verificar' : 'Check'}
                 </button>
               )}
 
@@ -159,7 +171,7 @@ const LearnView: React.FC = () => {
                   onClick={nextQuestion}
                   className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-transform active:scale-95 flex items-center gap-2 ${isCorrect ? 'bg-green-600 hover:bg-green-700' : 'bg-red-500 hover:bg-red-600'}`}
                 >
-                  Continuar <ArrowRight size={20} />
+                  {language === 'pt' ? 'Continuar' : 'Continue'} <ArrowRight size={20} />
                 </button>
               )}
            </div>
@@ -183,17 +195,17 @@ const LearnView: React.FC = () => {
           <Trophy size={64} />
         </div>
         
-        <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Lição Completa!</h2>
-        <p className="text-gray-600 mb-8 text-lg">Você praticou "{activeLesson.title}"</p>
+        <h2 className="text-3xl font-extrabold text-gray-900 mb-2">{language === 'pt' ? 'Lição Completa!' : 'Lesson Complete!'}</h2>
+        <p className="text-gray-600 mb-8 text-lg">{language === 'pt' ? 'Você praticou' : 'You practiced'} "{activeLesson.title}"</p>
         
         <div className="bg-white p-6 rounded-3xl shadow-soft w-full max-w-sm mb-8 flex justify-around">
            <div>
-             <p className="text-gray-400 text-xs font-bold uppercase">Acertos</p>
+             <p className="text-gray-400 text-xs font-bold uppercase">{language === 'pt' ? 'Acertos' : 'Score'}</p>
              <p className="text-2xl font-bold text-green-600">{score}/{questions.length}</p>
            </div>
            <div className="w-px bg-gray-100"></div>
            <div>
-             <p className="text-gray-400 text-xs font-bold uppercase">XP Ganho</p>
+             <p className="text-gray-400 text-xs font-bold uppercase">{language === 'pt' ? 'XP Ganho' : 'XP Earned'}</p>
              <p className="text-2xl font-bold text-orange-500">+{activeLesson.xp}</p>
            </div>
         </div>
@@ -202,7 +214,7 @@ const LearnView: React.FC = () => {
           onClick={reset}
           className="bg-gray-900 text-white px-10 py-4 rounded-2xl font-bold shadow-xl hover:scale-105 transition-transform"
         >
-          Voltar ao Menu
+          {language === 'pt' ? 'Voltar ao Menu' : 'Back to Menu'}
         </button>
       </div>
     );
@@ -236,13 +248,13 @@ const LearnView: React.FC = () => {
         <h3 className="text-xl font-bold text-gray-800 mb-4 px-2">{t('learn.current_path')}</h3>
 
         <div className="space-y-6 pb-32">
-          {MOCK_LESSONS.map((lesson, index) => (
+          {lessons.map((lesson, index) => (
             <div 
               key={lesson.id} 
               onClick={() => startLesson(lesson)}
               className="bg-white rounded-3xl p-6 shadow-sm border-2 border-transparent hover:border-afri-primary transition-all cursor-pointer group relative overflow-hidden transform hover:-translate-y-1"
             >
-              {index !== MOCK_LESSONS.length - 1 && (
+              {index !== lessons.length - 1 && (
                 <div className="absolute left-1/2 bottom-0 w-0.5 h-10 bg-gray-200 translate-y-full z-0"></div>
               )}
 
@@ -266,7 +278,6 @@ const LearnView: React.FC = () => {
                 {index === 0 ? '👋' : index === 1 ? '🍎' : '👪'}
               </div>
               
-              {/* Fix: Button always visible, not hidden/obfuscated by opacity */}
               <div className="mt-4 flex justify-end relative z-10">
                 <button className="bg-afri-primary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg active:scale-95 transition-transform">
                   {t('learn.start_lesson')}

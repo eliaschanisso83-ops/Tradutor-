@@ -103,22 +103,28 @@ export const translateAudio = async (base64Audio: string, mimeType: string, targ
 export const chatWithTutor = async (
   history: { role: string; parts: { text: string }[] }[],
   message: string,
-  learningLang: string
+  learningLang: string,
+  interfaceLang: string // 'pt' or 'en'
 ): Promise<string> => {
   if (!isValidKey) return "Erro: API Key não configurada.";
 
   try {
-    // Sanitize history to ensure roles are strictly 'user' or 'model'
+    // Sanitize history
     const safeHistory = history.map(h => ({
       role: h.role === 'user' ? 'user' : 'model',
       parts: h.parts
     }));
 
+    const langName = interfaceLang === 'pt' ? 'Portuguese' : 'English';
+
     const chat = ai.chats.create({
       model: MULTIMODAL_MODEL,
       history: safeHistory,
       config: { 
-        systemInstruction: `You are a helpful language tutor teaching ${learningLang}. Keep answers short, encouraging, and educational.` 
+        systemInstruction: `You are a helpful language tutor teaching ${learningLang}. 
+        You MUST communicate with the student in ${langName} (unless they are practicing the target language).
+        Keep answers short, encouraging, and educational.
+        If they ask something in ${langName}, reply in ${langName}.` 
       }
     });
 
@@ -137,18 +143,20 @@ export interface QuizQuestion {
   explanation: string;
 }
 
-export const generateQuiz = async (topic: string, lang: string): Promise<QuizQuestion[]> => {
-  if (!isValidKey) return getMockQuiz(topic, lang);
+export const generateQuiz = async (topic: string, lang: string, interfaceLang: string): Promise<QuizQuestion[]> => {
+  if (!isValidKey) return getMockQuiz(topic, lang, interfaceLang);
 
   try {
+    const langName = interfaceLang === 'pt' ? 'Portuguese' : 'English';
     const prompt = `Create a quiz with 3 multiple-choice questions for a beginner learning ${lang} about "${topic}".
+    The questions and explanations MUST be written in ${langName}.
     Output strictly valid JSON array:
     [
       {
-        "question": "What is 'Hello' in ${lang}?",
-        "options": ["A", "B", "C", "D"],
+        "question": "Question text in ${langName}...",
+        "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
         "correctIndex": 0,
-        "explanation": "Because..."
+        "explanation": "Explanation in ${langName}..."
       }
     ]`;
 
@@ -162,12 +170,38 @@ export const generateQuiz = async (topic: string, lang: string): Promise<QuizQue
     throw new Error("Invalid JSON");
   } catch (error) {
     console.warn("Quiz generation failed, using mock:", error);
-    return getMockQuiz(topic, lang);
+    return getMockQuiz(topic, lang, interfaceLang);
   }
 };
 
 // Fallback if API fails
-const getMockQuiz = (topic: string, lang: string): QuizQuestion[] => {
+const getMockQuiz = (topic: string, lang: string, interfaceLang: string): QuizQuestion[] => {
+  const isPt = interfaceLang === 'pt';
+  
+  if (isPt) {
+    return [
+      {
+        question: `Como se diz 'Olá' em ${lang}?`,
+        options: ["Olá", "Adeus", "Dormir", "Correr"],
+        correctIndex: 0,
+        explanation: "Saudação básica é essencial."
+      },
+      {
+        question: `Qual palavra se relaciona com "${topic}"?`,
+        options: ["Água", "Mercado", "Carro", "Céu"],
+        correctIndex: 1,
+        explanation: "O contexto combina com o tópico."
+      },
+      {
+        question: "Selecione a frase correta.",
+        options: ["Frase Errada", "Gramática Ruim", "Frase Correta", "Sem sentido"],
+        correctIndex: 2,
+        explanation: "Esta segue as regras gramaticais."
+      }
+    ];
+  }
+
+  // English Fallback
   return [
     {
       question: `How do you greet someone in ${lang}?`,
