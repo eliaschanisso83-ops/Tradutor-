@@ -374,4 +374,24 @@ const CommunityView: React.FC = () => {
                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-300 ${
                    isActive 
                    ? 'bg-white text-afri-primary shadow-sm scale-[1.02]' 
-                   : 'text-gray-500 hover:text-gray
+                   : 'text-gray-500 hover:text-gray-700'
+                 }`}
+               >
+                 <Icon size={16} />
+                 <span className="hidden sm:inline">{tab.label}</span>
+               </button>
+             );
+           })}
+        </div>
+
+        {/* Main Content Area */}
+        <div className="min-h-[300px]">
+          {renderContent()}
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default CommunityView;

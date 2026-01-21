@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from '../types';
 import { chatWithTutor } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
+import { RefreshCcw, Send } from 'lucide-react';
 
 const TutorView: React.FC = () => {
   const { t, language } = useLanguage();
@@ -12,15 +13,19 @@ const TutorView: React.FC = () => {
   
   // Initialize or update the first message when language changes
   useEffect(() => {
-    if (messages.length === 0 || (messages.length === 1 && messages[0].role === 'model')) {
-       setMessages([{
+    if (messages.length === 0) {
+      resetChat();
+    }
+  }, [language]);
+
+  const resetChat = () => {
+    setMessages([{
         id: '1',
         role: 'model',
         text: t('tutor.intro'),
         timestamp: new Date()
-      }]);
-    }
-  }, [language]);
+    }]);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,7 +55,7 @@ const TutorView: React.FC = () => {
       parts: [{ text: m.text }]
     }));
 
-    const responseText = await chatWithTutor(history, userMsg.text, "African Languages");
+    const responseText = await chatWithTutor(history, userMsg.text, "African Languages (Mozambique/Zimbabwe context)");
 
     const aiMsg: ChatMessage = {
       id: (Date.now() + 1).toString(),
@@ -67,17 +72,26 @@ const TutorView: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 max-w-3xl mx-auto w-full shadow-lg relative">
-      <div className="bg-white p-4 border-b flex items-center gap-4 z-10 shadow-sm">
-        <div className="relative">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-afri-secondary to-green-500 flex items-center justify-center text-white text-2xl shadow-md">
-            🧙🏾‍♂️
+      <div className="bg-white p-4 border-b flex items-center justify-between z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-afri-secondary to-green-500 flex items-center justify-center text-white text-2xl shadow-md">
+              🧙🏾‍♂️
+            </div>
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
           </div>
-          <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+          <div>
+            <h2 className="font-bold text-gray-800 text-lg">{t('tutor.title')}</h2>
+            <p className="text-xs text-gray-500">{t('tutor.subtitle')}</p>
+          </div>
         </div>
-        <div>
-          <h2 className="font-bold text-gray-800 text-lg">{t('tutor.title')}</h2>
-          <p className="text-xs text-gray-500">{t('tutor.subtitle')}</p>
-        </div>
+        <button 
+          onClick={resetChat} 
+          className="p-2 text-gray-400 hover:text-afri-primary bg-gray-50 hover:bg-orange-50 rounded-full transition-colors"
+          title="Reiniciar conversa"
+        >
+          <RefreshCcw size={18} />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-[#f0f2f5]">
@@ -93,7 +107,14 @@ const TutorView: React.FC = () => {
                   : 'bg-white text-gray-800 rounded-bl-none border border-gray-100'
               }`}
             >
-              <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
+              <p className="whitespace-pre-wrap leading-relaxed">
+                {msg.text}
+              </p>
+              {msg.text.includes("Erro") && (
+                 <button onClick={() => handleSend(messages[messages.length-2].text)} className="mt-2 text-xs underline text-red-500 font-bold block">
+                   Tentar novamente
+                 </button>
+              )}
               <p className={`text-[10px] mt-2 text-right ${msg.role === 'user' ? 'text-orange-100' : 'text-gray-400'}`}>
                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -113,7 +134,7 @@ const TutorView: React.FC = () => {
       </div>
 
       {/* Suggested Topics (only show if not typing) */}
-      {!isTyping && (
+      {!isTyping && messages.length < 3 && (
         <div className="px-4 py-2 bg-[#f0f2f5] flex gap-2 overflow-x-auto no-scrollbar">
           {suggestions.map(topic => (
             <button
@@ -143,7 +164,7 @@ const TutorView: React.FC = () => {
             disabled={!input.trim() || isTyping}
             className="w-12 h-12 bg-afri-primary text-white rounded-full flex items-center justify-center hover:bg-afri-accent disabled:opacity-50 shadow-md hover:scale-105 transition-all"
           >
-            ➤
+            <Send size={20} className={isTyping ? "opacity-0" : "ml-1"} />
           </button>
         </div>
       </div>

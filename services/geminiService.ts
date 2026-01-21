@@ -7,8 +7,7 @@ const isValidKey = apiKey && apiKey.length > 10 && apiKey !== 'undefined';
 // Initialization strictly using process.env.API_KEY
 const ai = new GoogleGenAI({ apiKey: isValidKey ? apiKey : 'MISSING_KEY' });
 
-// SWITCHED MODEL: 'gemini-flash-latest' (usually maps to 1.5 Flash or 2.5 Flash) has better quotas 
-// than the experimental 'gemini-3-flash-preview' shown in your error.
+// SWITCHED MODEL: 'gemini-flash-latest' for better stability
 const MULTIMODAL_MODEL = 'gemini-flash-latest';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 
@@ -21,7 +20,11 @@ const extractJSON = (text: string): any => {
     if (match) {
       try { return JSON.parse(match[0]); } catch (e2) {}
     }
-    return {};
+    const arrayMatch = text.match(/\[[\s\S]*\]/);
+    if (arrayMatch) {
+      try { return JSON.parse(arrayMatch[0]); } catch (e3) {}
+    }
+    return null;
   }
 };
 
@@ -29,15 +32,12 @@ const extractJSON = (text: string): any => {
 const formatError = (error: any): string => {
   const msg = error.message || error.toString();
   if (msg.includes('429') || msg.includes('quota')) {
-    return "Limite de uso atingido (Quota). Aguarde 1 minuto.";
+    return "Limite de uso (Quota) atingido. Tente novamente em 1 min.";
   }
   if (msg.includes('503') || msg.includes('overloaded')) {
-    return "Servidor do Google ocupado. Tente novamente.";
+    return "Servidor ocupado. Tente novamente.";
   }
-  if (msg.includes('API key')) {
-    return "Chave de API inválida.";
-  }
-  return "Erro de conexão temporário.";
+  return "Erro de conexão. Verifique sua internet.";
 };
 
 export const translateText = async (
@@ -45,78 +45,48 @@ export const translateText = async (
   sourceLang: string,
   targetLang: string
 ): Promise<{ translated: string; pronunciation: string; error?: string }> => {
-  
-  if (!isValidKey) {
-    return { translated: "Erro de Configuração", pronunciation: "", error: "Chave de API ausente." };
-  }
+  if (!isValidKey) return { translated: "Erro Config", pronunciation: "", error: "API Key ausente" };
 
   try {
     const prompt = `Translate this text from ${sourceLang} to ${targetLang}.
     Text: "${text}"
-    
-    Output ONLY a JSON object:
-    {"translated": "YOUR_TRANSLATION", "pronunciation": "PRONUNCIATION_GUIDE"}
-    `;
+    Output ONLY JSON: {"translated": "...", "pronunciation": "..."}`;
 
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
       contents: { parts: [{ text: prompt }] },
     });
 
-    const rawText = response.text || "{}";
-    const parsed = extractJSON(rawText);
-    
-    if (!parsed.translated) {
-      return { translated: rawText, pronunciation: "" };
-    }
-    
+    const parsed = extractJSON(response.text || "{}");
     return { 
-      translated: parsed.translated, 
-      pronunciation: parsed.pronunciation || '' 
+      translated: parsed?.translated || response.text, 
+      pronunciation: parsed?.pronunciation || '' 
     };
   } catch (error: any) {
-    console.error("Gemini Error:", error);
-    return { 
-      translated: "Erro de Serviço", 
-      pronunciation: "", 
-      error: formatError(error)
-    };
+    return { translated: "Erro", pronunciation: "", error: formatError(error) };
   }
 };
 
-export const translateImage = async (
-  base64Image: string,
-  mimeType: string,
-  targetLang: string
-): Promise<string> => {
-  if (!isValidKey) return "Erro: Chave de API faltando.";
-
+export const translateImage = async (base64Image: string, mimeType: string, targetLang: string): Promise<string> => {
+  if (!isValidKey) return "Erro API Key";
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
       contents: {
         parts: [
           { inlineData: { mimeType, data: base64Image } },
-          { text: `Translate text in image to ${targetLang}. If no text, describe image in ${targetLang}.` },
+          { text: `Translate text in image to ${targetLang}. If no text, describe.` },
         ],
       },
     });
-
     return response.text || "Sem resultado.";
-  } catch (error: any) {
-    return formatError(error);
-  }
+  } catch (error: any) { return formatError(error); }
 };
 
-export const translateAudio = async (
-  base64Audio: string,
-  mimeType: string,
-  targetLang: string
-): Promise<{ transcription: string; translation: string }> => {
-  if (!isValidKey) return { transcription: "Erro", translation: "Chave ausente" };
-
+export const translateAudio = async (base64Audio: string, mimeType: string, targetLang: string): Promise<any> => {
+  if (!isValidKey) return { transcription: "Erro", translation: "Erro API" };
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
       model: MULTIMODAL_MODEL,
       contents: {
         parts: [
@@ -125,15 +95,9 @@ export const translateAudio = async (
         ],
       },
     });
-
     const parsed = extractJSON(response.text || "{}");
-    return {
-      transcription: parsed.transcription || "(Áudio detectado)",
-      translation: parsed.translation || "Falha na tradução"
-    };
-  } catch (error: any) {
-    return { transcription: "Erro", translation: formatError(error) };
-  }
+    return { transcription: parsed?.transcription || "...", translation: parsed?.translation || "..." };
+  } catch (error: any) { return { transcription: "Erro", translation: formatError(error) }; }
 };
 
 export const chatWithTutor = async (
@@ -141,25 +105,93 @@ export const chatWithTutor = async (
   message: string,
   learningLang: string
 ): Promise<string> => {
-  if (!isValidKey) return "Erro: API Key inválida.";
+  if (!isValidKey) return "Erro: API Key não configurada.";
 
   try {
+    // Sanitize history to ensure roles are strictly 'user' or 'model'
+    const safeHistory = history.map(h => ({
+      role: h.role === 'user' ? 'user' : 'model',
+      parts: h.parts
+    }));
+
     const chat = ai.chats.create({
       model: MULTIMODAL_MODEL,
-      history: history,
-      config: { systemInstruction: `Tutor for ${learningLang}. Concise.` }
+      history: safeHistory,
+      config: { 
+        systemInstruction: `You are a helpful language tutor teaching ${learningLang}. Keep answers short, encouraging, and educational.` 
+      }
     });
 
     const result = await chat.sendMessage({ message });
-    return result.text || "...";
+    return result.text || "(Sem resposta)";
   } catch (error) {
+    console.error(error);
     return formatError(error);
   }
 };
 
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export const generateQuiz = async (topic: string, lang: string): Promise<QuizQuestion[]> => {
+  if (!isValidKey) return getMockQuiz(topic, lang);
+
+  try {
+    const prompt = `Create a quiz with 3 multiple-choice questions for a beginner learning ${lang} about "${topic}".
+    Output strictly valid JSON array:
+    [
+      {
+        "question": "What is 'Hello' in ${lang}?",
+        "options": ["A", "B", "C", "D"],
+        "correctIndex": 0,
+        "explanation": "Because..."
+      }
+    ]`;
+
+    const response = await ai.models.generateContent({
+      model: MULTIMODAL_MODEL,
+      contents: { parts: [{ text: prompt }] },
+    });
+
+    const data = extractJSON(response.text || "");
+    if (Array.isArray(data) && data.length > 0) return data;
+    throw new Error("Invalid JSON");
+  } catch (error) {
+    console.warn("Quiz generation failed, using mock:", error);
+    return getMockQuiz(topic, lang);
+  }
+};
+
+// Fallback if API fails
+const getMockQuiz = (topic: string, lang: string): QuizQuestion[] => {
+  return [
+    {
+      question: `How do you greet someone in ${lang}?`,
+      options: ["Hello", "Goodbye", "Sleep", "Run"],
+      correctIndex: 0,
+      explanation: "Basic greeting is essential."
+    },
+    {
+      question: `Which word relates to "${topic}"?`,
+      options: ["Water", "Market", "Car", "Sky"],
+      correctIndex: 1,
+      explanation: "Context matches the topic."
+    },
+    {
+      question: "Select the correct phrase.",
+      options: ["Wrong Phrase", "Bad Grammar", "Correct Phrase", "Nonsense"],
+      correctIndex: 2,
+      explanation: "This follows grammatical rules."
+    }
+  ];
+};
+
 export const generateSpeech = async (text: string): Promise<string | null> => {
   if (!isValidKey) return null;
-
   try {
     const response = await ai.models.generateContent({
       model: TTS_MODEL,
@@ -170,8 +202,5 @@ export const generateSpeech = async (text: string): Promise<string | null> => {
       },
     });
     return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  } catch (error) { return null; }
 };
