@@ -163,7 +163,7 @@ const TranslationView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full relative p-4 max-w-4xl mx-auto md:p-8">
+    <div className="flex flex-col h-full relative p-4 max-w-4xl mx-auto md:p-8 overflow-y-auto no-scrollbar">
       
       {/* Language Header */}
       <div className="flex items-center justify-between gap-4 mb-6 z-10">

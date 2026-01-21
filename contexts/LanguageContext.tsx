@@ -81,7 +81,12 @@ const translations = {
       sign_in: 'Entrar para Contribuir'
     },
     profile: {
-      privacy_policy: 'Privacy Policy'
+      title: 'Edit Profile',
+      display_name: 'Display Name',
+      app_language: 'App Language',
+      save: 'Save Profile',
+      privacy_policy: 'Privacy Policy',
+      delete_account: 'Delete Account'
     }
   },
   pt: {
@@ -162,7 +167,12 @@ const translations = {
       sign_in: 'Entrar para Contribuir'
     },
     profile: {
-      privacy_policy: 'Política de Privacidade'
+      title: 'Editar Perfil',
+      display_name: 'Nome de Exibição',
+      app_language: 'Idioma do App',
+      save: 'Salvar Perfil',
+      privacy_policy: 'Política de Privacidade',
+      delete_account: 'Excluir Conta'
     }
   }
 };
@@ -176,15 +186,26 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('en');
 
   useEffect(() => {
-    // Detect browser language
-    const browserLang = navigator.language.split('-')[0];
-    if (browserLang === 'pt') {
-      setLanguage('pt');
+    // 1. Check LocalStorage
+    const savedLang = localStorage.getItem('afrilingo_lang') as Language;
+    if (savedLang && (savedLang === 'en' || savedLang === 'pt')) {
+      setLanguageState(savedLang);
+    } else {
+      // 2. Fallback to Browser Language
+      const browserLang = navigator.language.split('-')[0];
+      if (browserLang === 'pt') {
+        setLanguageState('pt');
+      }
     }
   }, []);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('afrilingo_lang', lang);
+  };
 
   const t = (path: string) => {
     const keys = path.split('.');

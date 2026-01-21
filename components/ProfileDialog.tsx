@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
-import { X, Save, Loader2, Download, Shield, Trash2, AlertTriangle } from 'lucide-react';
+import { X, Save, Loader2, Download, Shield, Trash2, AlertTriangle, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const AVATARS = ['🦁', '🐘', '🦒', '🦓', '🐆', '🌍', '🥁', '🌞', '💎', '🏺', '🥘', '🛖'];
 
 const ProfileDialog: React.FC = () => {
   const { user, updateProfile, isProfileOpen, setProfileOpen } = useUser();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   
   const [username, setUsername] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('');
+  const [selectedLang, setSelectedLang] = useState<'en' | 'pt'>('en');
   const [isSaving, setIsSaving] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -19,9 +20,10 @@ const ProfileDialog: React.FC = () => {
     if (user && isProfileOpen) {
       setUsername(user.username === 'Guest Explorer' ? '' : user.username);
       setSelectedAvatar(user.avatar);
+      setSelectedLang(language);
       setShowDeleteConfirm(false);
     }
-  }, [user, isProfileOpen]);
+  }, [user, isProfileOpen, language]);
 
   // Listen for the PWA install event
   useEffect(() => {
@@ -50,14 +52,13 @@ const ProfileDialog: React.FC = () => {
     if (!username.trim()) return;
     setIsSaving(true);
     await updateProfile(username, selectedAvatar);
+    setLanguage(selectedLang); // Update global language
     setIsSaving(false);
     setProfileOpen(false);
   };
 
   const handleDeleteAccount = () => {
-    // Clear local storage
     localStorage.clear();
-    // Ideally call Supabase to delete row, but for MVP local clear + reload is sufficient to reset "identity" on device
     window.location.reload();
   };
 
@@ -67,27 +68,28 @@ const ProfileDialog: React.FC = () => {
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setProfileOpen(false)}></div>
       
-      <div className="bg-white rounded-3xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-6">
+      <div className="bg-white rounded-3xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+        <div className="p-6 overflow-y-auto no-scrollbar">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-gray-800">Edit Profile</h2>
+            <h2 className="text-xl font-bold text-gray-800">{t('profile.title')}</h2>
             <button onClick={() => setProfileOpen(false)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
               <X size={18} />
             </button>
           </div>
 
+          {/* Avatar Selection */}
           <div className="flex flex-col items-center mb-6">
             <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center text-5xl mb-4 border-4 border-white shadow-lg">
               {selectedAvatar}
             </div>
-            <p className="text-sm text-gray-500 font-medium">Choose an avatar</p>
+            
             <div className="flex flex-wrap gap-2 justify-center mt-3">
               {AVATARS.map(av => (
                 <button
                   key={av}
                   onClick={() => setSelectedAvatar(av)}
                   className={`w-10 h-10 flex items-center justify-center text-xl rounded-full transition-all ${
-                    selectedAvatar === av ? 'bg-afri-primary text-white scale-110 shadow-md' : 'bg-gray-50 hover:bg-gray-100'
+                    selectedAvatar === av ? 'bg-afri-primary text-white scale-110 shadow-md ring-2 ring-offset-2 ring-afri-primary' : 'bg-gray-50 hover:bg-gray-100'
                   }`}
                 >
                   {av}
@@ -96,25 +98,54 @@ const ProfileDialog: React.FC = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
+            {/* Username Input */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Display Name</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{t('profile.display_name')}</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your name"
+                placeholder="Ex: João"
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-afri-primary/20 focus:border-afri-primary transition-all font-bold text-gray-800"
               />
             </div>
 
+            {/* Language Selection */}
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">{t('profile.app_language')}</label>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setSelectedLang('pt')}
+                  className={`flex-1 py-3 px-2 rounded-xl border-2 flex items-center justify-center gap-2 transition-all ${
+                    selectedLang === 'pt' 
+                    ? 'border-afri-primary bg-orange-50 text-afri-primary font-bold shadow-sm' 
+                    : 'border-gray-100 bg-gray-50 text-gray-500 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="text-lg">🇵🇹</span> Português
+                </button>
+                <button 
+                  onClick={() => setSelectedLang('en')}
+                  className={`flex-1 py-3 px-2 rounded-xl border-2 flex items-center justify-center gap-2 transition-all ${
+                    selectedLang === 'en' 
+                    ? 'border-afri-primary bg-orange-50 text-afri-primary font-bold shadow-sm' 
+                    : 'border-gray-100 bg-gray-50 text-gray-500 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="text-lg">🇺🇸</span> English
+                </button>
+              </div>
+            </div>
+
+            {/* Save Button */}
             <button
               onClick={handleSave}
               disabled={!username.trim() || isSaving}
-              className="w-full bg-afri-primary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-afri-accent transition-colors disabled:opacity-50"
+              className="w-full bg-afri-primary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-afri-accent transition-colors disabled:opacity-50 shadow-lg active:scale-95"
             >
               {isSaving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
-              Save Profile
+              {t('profile.save')}
             </button>
             
             {installPrompt && (
@@ -145,7 +176,8 @@ const ProfileDialog: React.FC = () => {
                    onClick={() => setShowDeleteConfirm(true)}
                    className="flex items-center justify-center gap-1.5 text-xs text-red-400 hover:text-red-600 font-medium transition-colors"
                  >
-                   Delete Account
+                   <Trash2 size={12} />
+                   {t('profile.delete_account')}
                  </button>
                ) : (
                  <div className="bg-red-50 p-3 rounded-xl border border-red-100 text-center animate-in fade-in">

@@ -266,10 +266,10 @@ const LearnView: React.FC = () => {
                 {index === 0 ? '👋' : index === 1 ? '🍎' : '👪'}
               </div>
               
-              {/* Overlay Start Button for clarity */}
+              {/* Fix: Button always visible, not hidden/obfuscated by opacity */}
               <div className="mt-4 flex justify-end relative z-10">
-                <button className="bg-afri-primary text-white px-4 py-2 rounded-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                  Iniciar
+                <button className="bg-afri-primary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg active:scale-95 transition-transform">
+                  {t('learn.start_lesson')}
                 </button>
               </div>
             </div>

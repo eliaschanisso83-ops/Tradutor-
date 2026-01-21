@@ -70,27 +70,11 @@ const AppContent: React.FC = () => {
              >
                {user?.avatar || '🦁'}
              </button>
-
-            <button 
-              onClick={toggleLanguage}
-              className="w-9 h-9 bg-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm border border-gray-200"
-            >
-              {language === 'en' ? '🇺🇸' : '🇵🇹'}
-            </button>
           </div>
         </div>
 
-        {/* Desktop Language Toggle */}
-        <div className="hidden md:block absolute top-6 right-8 z-50">
-           <button 
-            onClick={toggleLanguage}
-            className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 font-bold text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <span>{language === 'en' ? '🇺🇸 English' : '🇵🇹 Português'}</span>
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth">
+        {/* View Container - Removed overflow-y-auto here so individual views control their scrolling */}
+        <div className="flex-1 w-full h-full relative">
           {renderView()}
         </div>
       </main>
