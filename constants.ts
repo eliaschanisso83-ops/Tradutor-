@@ -1,5 +1,19 @@
 import { Language, Lesson, TouristPhrase } from './types';
 
+export const AD_CONFIG = {
+  // Master switch for ads. Set to false to hide all ads during development.
+  ENABLED: true, 
+  PUBLISHER_ID: 'ca-pub-5925121782414544',
+  SLOTS: {
+    HOME_BANNER: '89324792',      // Replace with real AdSense Slot ID
+    LEARN_FEED: '777666555',      // Replace with real AdSense Slot ID
+    LESSON_MODAL: '444333222',    // Replace with real AdSense Slot ID
+    COMMUNITY_FEED_1: '111222333',// Replace with real AdSense Slot ID
+    COMMUNITY_FEED_2: '555666777',// Replace with real AdSense Slot ID
+    COMMUNITY_VERIFY: '999888777' // Replace with real AdSense Slot ID
+  }
+};
+
 export const SUPPORTED_LANGUAGES: Language[] = [
   { code: 'pt', name: 'Português', flag: '🇵🇹' },
   { code: 'en', name: 'English', flag: '🇺🇸' },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MOCK_LESSONS } from '../constants';
+import { MOCK_LESSONS, AD_CONFIG } from '../constants';
 import { Lesson } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import AdBanner from './AdBanner';
@@ -87,7 +87,7 @@ const LearnView: React.FC = () => {
             </button>
           </div>
           
-          <AdBanner slotId="777666555" />
+          <AdBanner slotId={AD_CONFIG.SLOTS.LEARN_FEED} />
         </div>
       </div>
 
@@ -113,7 +113,7 @@ const LearnView: React.FC = () => {
                 </button>
               </div>
               <div className="mt-6">
-                <AdBanner slotId="modal-ad" />
+                <AdBanner slotId={AD_CONFIG.SLOTS.LESSON_MODAL} />
               </div>
             </div>
           </div>

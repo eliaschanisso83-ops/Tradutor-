@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SUPPORTED_LANGUAGES } from '../constants';
+import { SUPPORTED_LANGUAGES, AD_CONFIG } from '../constants';
 import { translateText, translateImage, translateAudio, generateSpeech } from '../services/geminiService';
 import { Language } from '../types';
 import { Mic, StopCircle, Image as ImageIcon, Sparkles, Copy, Check, Volume2, ArrowRightLeft, X, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
@@ -355,7 +355,7 @@ const TranslationView: React.FC = () => {
       )}
       
       {/* Banner Ad Area */}
-      <AdBanner slotId="89324792" />
+      <AdBanner slotId={AD_CONFIG.SLOTS.HOME_BANNER} />
       
       {/* Spacer for Floating Dock */}
       <div className="h-28 md:h-0"></div>

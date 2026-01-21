@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ThumbsUp, ThumbsDown, Plus, CheckCircle2, Activity, Send, Loader2, User } from 'lucide-react';
-import { SUPPORTED_LANGUAGES } from '../constants';
+import { SUPPORTED_LANGUAGES, AD_CONFIG } from '../constants';
 import { supabase } from '../services/supabase';
 import { useUser } from '../contexts/UserContext';
 import AdBanner from './AdBanner';
@@ -176,7 +176,7 @@ const CommunityView: React.FC = () => {
       case 'feed':
         return (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-             <AdBanner slotId="111222333" className="mb-6" />
+             <AdBanner slotId={AD_CONFIG.SLOTS.COMMUNITY_FEED_1} className="mb-6" />
              {loadingFeed ? (
                <div className="flex flex-col items-center justify-center py-10">
                  <Loader2 size={32} className="text-afri-primary animate-spin mb-2" />
@@ -205,7 +205,7 @@ const CommunityView: React.FC = () => {
                         </div>
                     </div>
                     {/* Insert an Ad every 5 posts */}
-                    {idx > 0 && idx % 5 === 0 && <AdBanner slotId="555666777" className="my-2" />}
+                    {idx > 0 && idx % 5 === 0 && <AdBanner slotId={AD_CONFIG.SLOTS.COMMUNITY_FEED_2} className="my-2" />}
                  </React.Fragment>
                ))
              )}
@@ -270,7 +270,7 @@ const CommunityView: React.FC = () => {
                   </button>
                </div>
              )}
-             <AdBanner slotId="999888777" className="mt-8" />
+             <AdBanner slotId={AD_CONFIG.SLOTS.COMMUNITY_VERIFY} className="mt-8" />
           </div>
         );
 
@@ -374,24 +374,4 @@ const CommunityView: React.FC = () => {
                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-300 ${
                    isActive 
                    ? 'bg-white text-afri-primary shadow-sm scale-[1.02]' 
-                   : 'text-gray-500 hover:text-gray-700'
-                 }`}
-               >
-                 <Icon size={16} />
-                 <span className="hidden sm:inline">{tab.label}</span>
-               </button>
-             );
-           })}
-        </div>
-
-        {/* Main Content Area */}
-        <div className="min-h-[300px]">
-          {renderContent()}
-        </div>
-
-      </div>
-    </div>
-  );
-};
-
-export default CommunityView;
+                   : 'text-gray-500 hover:text-gray
