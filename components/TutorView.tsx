@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, RoleplayScenario } from '../types';
 import { chatWithTutor } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
-import { RefreshCcw, Send, Store, Bus, Users, ArrowLeft, MessageCircle } from 'lucide-react';
+import { RefreshCcw, Send, ArrowLeft, MessageCircle, GraduationCap } from 'lucide-react';
 
 const TutorView: React.FC = () => {
   const { t, language } = useLanguage();
@@ -144,61 +144,79 @@ const TutorView: React.FC = () => {
   // --- RENDER MENU MODE ---
   if (mode === 'menu') {
     return (
-      <div className="h-full bg-gray-50 overflow-y-auto p-4 md:p-8">
-        <div className="max-w-2xl mx-auto">
-          <header className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">{t('tutor.title')}</h2>
-            <p className="text-gray-600">{language === 'pt' ? 'Escolha como quer praticar hoje:' : 'Choose how you want to practice today:'}</p>
+      <div className="h-full bg-afri-warm/30 overflow-y-auto p-4 md:p-10 no-scrollbar">
+        <div className="max-w-4xl mx-auto">
+          <header className="mb-12">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-afri-primary rounded-2xl flex items-center justify-center text-white shadow-glow">
+                <GraduationCap size={28} />
+              </div>
+              <span className="text-xs font-black text-afri-primary uppercase tracking-[0.3em]">AI Learning</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter mb-3">{t('tutor.title')}</h2>
+            <p className="text-gray-500 font-medium text-lg tracking-tight">
+              {language === 'pt' ? 'Pratique conversação em tempo real com seu tutor pessoal.' : 'Practice real-time conversation with your personal AI tutor.'}
+            </p>
           </header>
 
-          <div className="grid gap-4">
+          <div className="grid md:grid-cols-2 gap-6">
             {/* Free Chat Option */}
             <div 
               onClick={() => startChat()}
-              className="bg-white p-6 rounded-3xl shadow-sm border-2 border-transparent hover:border-afri-primary cursor-pointer transition-all group flex items-center gap-4"
+              className="md:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-soft border-2 border-transparent hover:border-afri-primary cursor-pointer transition-all group flex items-center gap-6 hover:shadow-heavy hover:-translate-y-1"
             >
-               <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
-                 <MessageCircle size={32} />
+               <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center text-4xl group-hover:scale-110 transition-transform shadow-inner">
+                 <MessageCircle size={40} />
                </div>
-               <div>
-                 <h3 className="text-xl font-bold text-gray-800">{language === 'pt' ? 'Chat Livre' : 'Free Chat'}</h3>
-                 <p className="text-gray-500 text-sm">{language === 'pt' ? 'Converse sobre qualquer assunto com o Tutor.' : 'Talk about anything with your AI Tutor.'}</p>
+               <div className="flex-1">
+                 <div className="flex items-center gap-2 mb-1">
+                   <h3 className="text-2xl font-black text-gray-900 tracking-tight">{language === 'pt' ? 'Chat Livre' : 'Free Chat'}</h3>
+                   <span className="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Recomendado</span>
+                 </div>
+                 <p className="text-gray-500 font-medium leading-tight">{language === 'pt' ? 'Converse sobre qualquer assunto com o Tutor e receba correções instantâneas.' : 'Talk about anything with your AI Tutor and get instant corrections.'}</p>
+               </div>
+               <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-afri-primary group-hover:text-white transition-all">
+                 <Send size={20} />
                </div>
             </div>
 
-            <h3 className="text-gray-400 font-bold uppercase text-xs tracking-widest mt-4 ml-2">{language === 'pt' ? 'Cenários de Roleplay' : 'Roleplay Scenarios'}</h3>
+            <div className="md:col-span-2 mt-8 mb-4">
+              <h3 className="text-gray-400 font-black uppercase text-xs tracking-[0.3em] ml-2">{language === 'pt' ? 'Cenários de Roleplay' : 'Roleplay Scenarios'}</h3>
+            </div>
             
             {scenarios.map(sc => (
               <div 
                 key={sc.id}
                 onClick={() => startChat(sc)}
-                className="bg-white p-6 rounded-3xl shadow-sm border-2 border-transparent hover:border-afri-primary cursor-pointer transition-all group relative overflow-hidden"
+                className="bg-white p-8 rounded-[2.5rem] shadow-soft border-2 border-transparent hover:border-afri-primary cursor-pointer transition-all group relative overflow-hidden flex flex-col hover:shadow-heavy hover:-translate-y-1"
               >
-                <div className="flex items-start justify-between relative z-10">
-                   <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-orange-50 text-3xl flex items-center justify-center rounded-2xl shadow-inner">
-                        {sc.emoji}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-800">{sc.title}</h3>
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          sc.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
-                          sc.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          {sc.difficulty}
-                        </span>
-                      </div>
+                <div className="flex items-start justify-between mb-6 relative z-10">
+                   <div className="w-16 h-16 bg-afri-warm text-4xl flex items-center justify-center rounded-2xl shadow-inner border border-afri-primary/5 group-hover:scale-110 transition-transform">
+                     {sc.emoji}
                    </div>
+                   <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${
+                     sc.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                     sc.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                     'bg-red-100 text-red-700'
+                   }`}>
+                     {sc.difficulty}
+                   </span>
                 </div>
-                <p className="text-gray-500 text-sm mt-3 relative z-10">{sc.description}</p>
-                <div className="absolute right-0 bottom-0 opacity-5 text-8xl transform translate-x-4 translate-y-4 rotate-12 group-hover:scale-110 transition-transform">
+                <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tight relative z-10">{sc.title}</h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed relative z-10 flex-1">{sc.description}</p>
+                
+                <div className="mt-6 flex items-center text-afri-primary font-black text-xs uppercase tracking-widest gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 relative z-10">
+                  <span>Praticar Agora</span>
+                  <Send size={14} />
+                </div>
+
+                <div className="absolute right-0 bottom-0 opacity-[0.03] text-9xl transform translate-x-6 translate-y-6 rotate-12 group-hover:scale-125 group-hover:opacity-[0.07] transition-all duration-700">
                   {sc.emoji}
                 </div>
               </div>
             ))}
           </div>
-          <div className="h-24"></div>
+          <div className="h-32"></div>
         </div>
       </div>
     );
@@ -206,67 +224,75 @@ const TutorView: React.FC = () => {
 
   // --- RENDER CHAT MODE ---
   return (
-    <div className="flex flex-col h-full bg-gray-50 max-w-3xl mx-auto w-full shadow-lg relative">
-      <div className="bg-white p-3 border-b flex items-center justify-between z-10 shadow-sm">
-        <div className="flex items-center gap-3">
-          <button onClick={handleBackToMenu} className="p-2 hover:bg-gray-100 rounded-full text-gray-600">
+    <div className="flex flex-col h-full bg-white max-w-4xl mx-auto w-full shadow-heavy relative md:rounded-t-[3rem] overflow-hidden border-x border-gray-100">
+      <div className="bg-white/80 backdrop-blur-xl p-4 border-b flex items-center justify-between z-20 shadow-sm sticky top-0">
+        <div className="flex items-center gap-4">
+          <button onClick={handleBackToMenu} className="w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-xl text-gray-600 transition-all active:scale-90">
             <ArrowLeft size={20} />
           </button>
           
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-afri-secondary to-green-500 flex items-center justify-center text-white text-xl shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-afri-primary to-afri-accent flex items-center justify-center text-white text-2xl shadow-glow rotate-3">
                 {activeScenario ? activeScenario.emoji : '🧙🏾‍♂️'}
               </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>
             </div>
             <div>
-              <h2 className="font-bold text-gray-800 text-sm md:text-base">
+              <h2 className="font-black text-gray-900 text-base md:text-lg tracking-tight leading-none">
                 {activeScenario ? activeScenario.title : t('tutor.title')}
               </h2>
-              {activeScenario && <p className="text-[10px] font-bold text-afri-primary bg-orange-50 px-2 py-0.5 rounded-full inline-block">Roleplay Mode</p>}
+              <div className="flex items-center gap-2 mt-1">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                <p className="text-[10px] font-black text-afri-primary uppercase tracking-widest">
+                  {activeScenario ? 'Scenario Mode' : 'Online Tutor'}
+                </p>
+              </div>
             </div>
           </div>
         </div>
         <button 
           onClick={() => startChat(activeScenario || undefined)} 
-          className="p-2 text-gray-400 hover:text-afri-primary bg-gray-50 hover:bg-orange-50 rounded-full transition-colors"
+          className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-afri-primary bg-gray-50 hover:bg-afri-warm rounded-xl transition-all active:rotate-180 duration-500"
           title="Reiniciar"
         >
           <RefreshCcw size={18} />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-[#f0f2f5]">
+      <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-gray-50/50 no-scrollbar">
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}
           >
             <div
-              className={`max-w-[85%] p-4 rounded-2xl shadow-sm relative ${
+              className={`max-w-[85%] p-5 rounded-[2rem] shadow-soft relative border ${
                 msg.role === 'user'
-                  ? 'bg-afri-primary text-white rounded-br-none'
-                  : 'bg-white text-gray-800 rounded-bl-none border border-gray-100'
+                  ? 'bg-gray-900 text-white rounded-br-none border-gray-800'
+                  : 'bg-white text-gray-900 rounded-bl-none border-gray-100'
               }`}
             >
-              <p className="whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+              <p className="whitespace-pre-wrap leading-relaxed text-base font-medium tracking-tight">
                 {msg.text}
               </p>
+              <div className={`text-[9px] font-bold uppercase tracking-widest mt-2 opacity-50 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                {msg.role === 'user' ? 'You' : 'Tutor'}
+              </div>
               {msg.text.includes("Erro") && (
-                 <button onClick={() => handleSend(messages[messages.length-2].text)} className="mt-2 text-xs underline text-red-500 font-bold block">
-                   Tentar novamente
+                 <button onClick={() => handleSend(messages[messages.length-2].text)} className="mt-3 text-xs font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline">
+                   <RefreshCcw size={12} /> Tentar novamente
                  </button>
               )}
             </div>
           </div>
         ))}
         {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-white p-4 rounded-2xl rounded-bl-none shadow-sm border border-gray-100 flex gap-2 items-center">
-              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-75"></span>
-              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-150"></span>
+          <div className="flex justify-start animate-in fade-in duration-300">
+            <div className="bg-white p-5 rounded-[2rem] rounded-bl-none shadow-soft border border-gray-100 flex gap-1.5 items-center">
+              <span className="w-1.5 h-1.5 bg-afri-primary rounded-full animate-bounce"></span>
+              <span className="w-1.5 h-1.5 bg-afri-primary rounded-full animate-bounce delay-150"></span>
+              <span className="w-1.5 h-1.5 bg-afri-primary rounded-full animate-bounce delay-300"></span>
             </div>
           </div>
         )}
@@ -274,22 +300,24 @@ const TutorView: React.FC = () => {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t pb-28 md:pb-4 transition-all">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={activeScenario ? (language === 'pt' ? 'Responda ao personagem...' : 'Reply to the character...') : t('tutor.type_placeholder')}
-            className="flex-1 bg-gray-100 border-transparent focus:bg-white border focus:border-afri-primary rounded-full px-5 py-3 focus:ring-0 outline-none transition-all"
-          />
+      <div className="p-6 bg-white border-t pb-32 md:pb-8 transition-all backdrop-blur-xl bg-white/90">
+        <div className="flex gap-3 max-w-3xl mx-auto">
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder={activeScenario ? (language === 'pt' ? 'Responda ao personagem...' : 'Reply to the character...') : t('tutor.type_placeholder')}
+              className="w-full bg-gray-50 border-gray-100 focus:bg-white border-2 focus:border-afri-primary rounded-2xl px-6 py-4 focus:ring-0 outline-none transition-all font-medium text-gray-900 placeholder-gray-300"
+            />
+          </div>
           <button
             onClick={() => handleSend()}
             disabled={!input.trim() || isTyping}
-            className="w-12 h-12 bg-afri-primary text-white rounded-full flex items-center justify-center hover:bg-afri-accent disabled:opacity-50 shadow-md hover:scale-105 transition-all"
+            className="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center hover:bg-afri-primary disabled:opacity-50 shadow-heavy hover:scale-105 transition-all active:scale-95 group"
           >
-            <Send size={20} className={isTyping ? "opacity-0" : "ml-1"} />
+            <Send size={22} className={`${isTyping ? "opacity-0" : "group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"}`} />
           </button>
         </div>
       </div>

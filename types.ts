@@ -1,5 +1,5 @@
 
-export type ViewState = 'translate' | 'learn' | 'tutor' | 'tourist' | 'community';
+export type ViewState = 'translate' | 'learn' | 'tutor' | 'tourist' | 'community' | 'game';
 
 export interface Language {
   code: string;

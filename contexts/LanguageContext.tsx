@@ -10,6 +10,7 @@ const translations = {
       tutor: 'Tutor',
       tourist: 'Tourist',
       community: 'Club',
+      game: 'Game',
       weekly_goal: 'Weekly Goal',
       days: 'days'
     },
@@ -96,6 +97,7 @@ const translations = {
       tutor: 'Tutor',
       tourist: 'Turista',
       community: 'Comunidade',
+      game: 'Jogo',
       weekly_goal: 'Meta Semanal',
       days: 'dias'
     },

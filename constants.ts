@@ -83,6 +83,37 @@ export const MOCK_LESSONS_DATA: Record<string, Lesson[]> = {
   ]
 };
 
+export const PRONUNCIATION_GAME_DATA: Record<string, { word: string; translation: string }[]> = {
+  changana: [
+    { word: 'Avuxeni', translation: 'Bom dia / Good morning' },
+    { word: 'Inkomu', translation: 'Obrigado / Thank you' },
+    { word: 'Xikwembu', translation: 'Deus / God' },
+    { word: 'Vutomi', translation: 'Vida / Life' },
+    { word: 'Rirhandzu', translation: 'Amor / Love' },
+  ],
+  swahili: [
+    { word: 'Habari', translation: 'Olá / Hello' },
+    { word: 'Asante', translation: 'Obrigado / Thank you' },
+    { word: 'Rafiki', translation: 'Amigo / Friend' },
+    { word: 'Familia', translation: 'Família / Family' },
+    { word: 'Amani', translation: 'Paz / Peace' },
+  ],
+  zulu: [
+    { word: 'Sawubona', translation: 'Olá / Hello' },
+    { word: 'Ngiyabonga', translation: 'Obrigado / Thank you' },
+    { word: 'Thando', translation: 'Amor / Love' },
+    { word: 'Ubuntu', translation: 'Humanidade / Humanity' },
+    { word: 'Jabula', translation: 'Alegria / Joy' },
+  ],
+  shona: [
+    { word: 'Mhoro', translation: 'Olá / Hello' },
+    { word: 'Waita', translation: 'Obrigado / Thank you' },
+    { word: 'Rudo', translation: 'Amor / Love' },
+    { word: 'Mufaro', translation: 'Felicidade / Happiness' },
+    { word: 'Rugare', translation: 'Paz / Peace' },
+  ]
+};
+
 export const TOURIST_PHRASES_DATA: Record<string, TouristPhrase[]> = {
   en: [
     {

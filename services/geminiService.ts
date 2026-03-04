@@ -18,11 +18,15 @@ const extractJSON = (text: string): any => {
   } catch (e) {
     const match = text.match(/\{[\s\S]*\}/);
     if (match) {
-      try { return JSON.parse(match[0]); } catch (e2) {}
+      try { return JSON.parse(match[0]); } catch (e2) {
+        console.warn("Failed to parse matched JSON object", e2);
+      }
     }
     const arrayMatch = text.match(/\[[\s\S]*\]/);
     if (arrayMatch) {
-      try { return JSON.parse(arrayMatch[0]); } catch (e3) {}
+      try { return JSON.parse(arrayMatch[0]); } catch (e3) {
+        console.warn("Failed to parse matched JSON array", e3);
+      }
     }
     return null;
   }
