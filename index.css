@@ -8,7 +8,6 @@ body {
   color: #1f2937;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
-  overflow: hidden;
 }
 
 .bg-pattern {

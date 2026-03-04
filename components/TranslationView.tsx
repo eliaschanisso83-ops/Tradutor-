@@ -163,7 +163,7 @@ const TranslationView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full relative p-4 max-w-4xl mx-auto md:p-8 overflow-y-auto no-scrollbar">
+    <div className="flex flex-col relative p-4 max-w-4xl mx-auto md:p-8">
       
       {/* Page Header */}
       <div className="mb-8 hidden md:block">

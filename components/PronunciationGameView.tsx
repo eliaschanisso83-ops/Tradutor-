@@ -252,7 +252,7 @@ const PronunciationGameView: React.FC = () => {
   );
 
   return (
-    <div className="h-full bg-afri-warm/20 overflow-y-auto p-4 md:p-10 no-scrollbar">
+    <div className="bg-afri-warm/20 p-4 md:p-10">
       <div className="max-w-4xl mx-auto">
         {gameState === 'selection' && renderSelection()}
         {gameState === 'playing' && renderPlaying()}

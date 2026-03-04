@@ -98,7 +98,7 @@ const LearnView: React.FC = () => {
     const isCorrect = selectedOption === currentQ.correctIndex;
 
     return (
-      <div className="h-full flex flex-col bg-white overflow-hidden md:rounded-t-[3rem] shadow-heavy border-x border-gray-100 max-w-4xl mx-auto">
+      <div className="flex flex-col bg-white md:rounded-t-[3rem] shadow-heavy border-x border-gray-100 max-w-4xl mx-auto">
         {/* Progress Bar */}
         <div className="w-full h-3 bg-gray-100">
           <div 
@@ -107,7 +107,7 @@ const LearnView: React.FC = () => {
           ></div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-12 flex flex-col w-full no-scrollbar">
+        <div className="flex-1 p-6 md:p-12 flex flex-col w-full">
            <div className="flex justify-between items-center mb-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-afri-warm rounded-xl flex items-center justify-center text-xl shadow-inner border border-afri-primary/10">
@@ -267,7 +267,7 @@ const LearnView: React.FC = () => {
 
   // 4. List View (Default)
   return (
-    <div className="h-full bg-afri-warm/20 overflow-y-auto p-4 md:p-10 relative no-scrollbar">
+    <div className="bg-afri-warm/20 p-4 md:p-10 relative">
       <div className="max-w-4xl mx-auto">
         
         {/* Header Stats */}

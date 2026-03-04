@@ -51,13 +51,13 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-gradient-animate relative">
+    <div className="flex h-screen w-screen bg-gradient-animate relative overflow-hidden">
       <div className="bg-pattern" />
       
       <Navigation currentView={currentView} setView={setCurrentView} />
       <ProfileDialog />
 
-      <main className="flex-1 relative h-full w-full overflow-hidden flex flex-col">
+      <main className="flex-1 relative h-full w-full flex flex-col overflow-hidden">
         {/* Mobile Header */}
         <div className="md:hidden pt-safe-top px-6 py-4 flex items-center justify-between z-20 glass-dark text-white shadow-lg">
           <div className="flex items-center gap-2">
@@ -79,7 +79,7 @@ const AppContent: React.FC = () => {
         </div>
 
         {/* View Container */}
-        <div className="flex-1 w-full h-full relative overflow-hidden">
+        <div className="flex-1 w-full relative overflow-y-auto">
           {renderView()}
         </div>
       </main>
