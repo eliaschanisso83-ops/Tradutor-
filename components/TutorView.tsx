@@ -259,7 +259,7 @@ const TutorView: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 bg-gray-50/50">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 pb-32 md:pb-8 space-y-6 md:space-y-8 bg-gray-50/50">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -299,7 +299,7 @@ const TutorView: React.FC = () => {
       </div>
 
       {/* Input Area */}
-      <div className="p-3 md:p-6 bg-white border-t transition-all backdrop-blur-xl bg-white/90">
+      <div className="p-3 md:p-6 pb-24 md:pb-6 bg-white border-t transition-all backdrop-blur-xl bg-white/90">
         <div className="flex gap-2 md:gap-3 max-w-3xl mx-auto">
           <div className="flex-1 relative">
             <input

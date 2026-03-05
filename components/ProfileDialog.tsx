@@ -68,7 +68,7 @@ const ProfileDialog: React.FC = () => {
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-xl" onClick={() => setProfileOpen(false)}></div>
       
-      <div className="bg-white rounded-[2rem] md:rounded-[3rem] w-full max-w-md relative z-10 shadow-heavy overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] border border-white">
+      <div className="bg-white rounded-t-[2.5rem] md:rounded-[3rem] w-full max-w-md relative z-10 shadow-heavy overflow-hidden animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-300 flex flex-col max-h-[92vh] border border-white">
         <div className="p-6 md:p-8 overflow-y-auto no-scrollbar">
           <div className="flex justify-between items-center mb-6 md:mb-10">
             <div className="flex items-center gap-3">

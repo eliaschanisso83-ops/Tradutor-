@@ -52,9 +52,9 @@ const AppContent: React.FC = () => {
       <Navigation currentView={currentView} setView={setCurrentView} />
       <ProfileDialog />
 
-      <main className="flex-1 relative h-full w-full flex flex-col overflow-hidden pb-safe-bottom">
+      <main className="flex-1 relative h-full w-full flex flex-col overflow-hidden">
         {/* Mobile Header */}
-        <div className="md:hidden pt-safe-top px-4 py-3 flex items-center justify-between z-20 glass-dark text-white shadow-lg">
+        <div className="md:hidden pt-safe-top px-4 py-3 flex items-center justify-between z-20 glass-dark text-white shadow-lg shrink-0">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-afri-primary rounded-lg shadow-glow">
               <Globe size={20} className="text-white" />
