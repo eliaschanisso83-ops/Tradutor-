@@ -6,8 +6,8 @@ body {
   font-family: 'Outfit', sans-serif;
   background-color: #fdfbf7;
   color: #1f2937;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+  margin: 0;
+  padding: 0;
 }
 
 .bg-pattern {

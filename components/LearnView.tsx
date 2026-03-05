@@ -98,7 +98,7 @@ const LearnView: React.FC = () => {
     const isCorrect = selectedOption === currentQ.correctIndex;
 
     return (
-      <div className="flex flex-col bg-white md:rounded-t-[3rem] shadow-heavy border-x border-gray-100 max-w-4xl mx-auto">
+      <div className="flex-1 overflow-y-auto pb-32 md:pb-0 flex flex-col bg-white md:rounded-t-[3rem] shadow-heavy border-x border-gray-100 max-w-4xl mx-auto">
         {/* Progress Bar */}
         <div className="w-full h-3 bg-gray-100">
           <div 
@@ -107,17 +107,17 @@ const LearnView: React.FC = () => {
           ></div>
         </div>
 
-        <div className="flex-1 p-6 md:p-12 flex flex-col w-full">
-           <div className="flex justify-between items-center mb-10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-afri-warm rounded-xl flex items-center justify-center text-xl shadow-inner border border-afri-primary/10">
+        <div className="flex-1 p-4 md:p-12 flex flex-col w-full">
+           <div className="flex justify-between items-center mb-4 md:mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-afri-warm rounded-lg flex items-center justify-center text-lg shadow-inner border border-afri-primary/10">
                   {targetLessonLang.flag}
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-afri-primary uppercase tracking-widest leading-none mb-1">
+                  <p className="text-[8px] md:text-[9px] font-black text-afri-primary uppercase tracking-widest leading-none mb-1">
                     {activeLesson.title}
                   </p>
-                  <p className="text-sm font-bold text-gray-900 leading-none">{targetLessonLang.name}</p>
+                  <p className="text-xs font-bold text-gray-900 leading-none">{targetLessonLang.name}</p>
                 </div>
               </div>
               <button 
@@ -128,16 +128,16 @@ const LearnView: React.FC = () => {
               </button>
            </div>
            
-           <div className="mb-10">
-             <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 block">Question {currentQIndex + 1} of {questions.length}</span>
-             <h2 className="text-2xl md:text-4xl font-black text-gray-900 leading-tight tracking-tighter">
+           <div className="mb-4 md:mb-6">
+             <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 md:mb-2 block">Question {currentQIndex + 1} of {questions.length}</span>
+             <h2 className="text-lg md:text-4xl font-black text-gray-900 leading-tight tracking-tighter">
                {currentQ.question}
              </h2>
            </div>
 
-           <div className="space-y-4 flex-1">
+           <div className="space-y-3 flex-1">
              {currentQ.options.map((opt, idx) => {
-               let btnClass = "w-full p-6 rounded-[2rem] border-2 text-left font-bold transition-all relative flex items-center gap-4 group ";
+               let btnClass = "w-full p-4 md:p-6 rounded-2xl md:rounded-[2rem] border-2 text-left font-bold transition-all relative flex items-center gap-3 md:gap-4 group ";
                
                if (isAnswered) {
                  if (idx === currentQ.correctIndex) {
@@ -181,23 +181,23 @@ const LearnView: React.FC = () => {
         </div>
 
         {/* Bottom Feedback Sheet */}
-        <div className={`p-8 border-t backdrop-blur-xl transition-colors duration-500 ${
+        <div className={`p-4 md:p-8 border-t backdrop-blur-xl transition-colors duration-500 ${
           isAnswered 
             ? (isCorrect ? 'bg-green-50/90 border-green-200' : 'bg-red-50/90 border-red-200') 
             : 'bg-white/90 border-gray-100'
         }`}>
-           <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+           <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
               {isAnswered ? (
                 <div className="flex-1 text-center md:text-left">
-                   <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg ${isCorrect ? 'bg-green-500' : 'bg-red-500'}`}>
-                       {isCorrect ? <CheckCircle size={24}/> : <XCircle size={24}/>}
+                   <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg ${isCorrect ? 'bg-green-500' : 'bg-red-500'}`}>
+                       {isCorrect ? <CheckCircle size={20}/> : <XCircle size={20}/>}
                      </div>
-                     <span className={`text-xl font-black uppercase tracking-widest ${isCorrect ? 'text-green-700' : 'text-red-600'}`}>
+                     <span className={`text-lg font-black uppercase tracking-widest ${isCorrect ? 'text-green-700' : 'text-red-600'}`}>
                        {isCorrect ? (language === 'pt' ? 'Excelente!' : 'Excellent!') : (language === 'pt' ? 'Ops! Quase lá' : 'Oops! Almost')}
                      </span>
                    </div>
-                   <p className="text-gray-600 font-medium leading-tight">{currentQ.explanation}</p>
+                   <p className="text-gray-600 text-sm font-medium leading-tight">{currentQ.explanation}</p>
                 </div>
               ) : (
                 <div className="flex-1 hidden md:block">
@@ -208,14 +208,14 @@ const LearnView: React.FC = () => {
               <button 
                 onClick={isAnswered ? nextQuestion : undefined}
                 disabled={!isAnswered}
-                className={`px-12 py-5 rounded-2xl font-black text-white shadow-heavy transition-all active:scale-95 flex items-center justify-center gap-3 w-full md:w-auto ${
+                className={`px-8 py-4 rounded-xl font-black text-white shadow-heavy transition-all active:scale-95 flex items-center justify-center gap-2 w-full md:w-auto ${
                   isAnswered 
                     ? (isCorrect ? 'bg-green-600 hover:bg-green-700' : 'bg-red-500 hover:bg-red-600') 
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >
                 <span>{isAnswered ? (language === 'pt' ? 'Continuar' : 'Continue') : (language === 'pt' ? 'Verificar' : 'Check')}</span>
-                <ArrowRight size={22} className={isAnswered ? "animate-bounce-x" : ""} />
+                <ArrowRight size={20} className={isAnswered ? "animate-bounce-x" : ""} />
               </button>
            </div>
         </div>
@@ -226,7 +226,7 @@ const LearnView: React.FC = () => {
   // 3. Completed State
   if (mode === 'completed' && activeLesson) {
      return (
-      <div className="h-full flex flex-col items-center justify-center bg-gradient-to-br from-afri-warm to-orange-100 p-8 text-center relative overflow-hidden">
+      <div className="flex-1 overflow-y-auto pb-32 md:pb-0 flex flex-col items-center justify-center bg-gradient-to-br from-afri-warm to-orange-100 p-8 text-center relative overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
         
@@ -244,14 +244,14 @@ const LearnView: React.FC = () => {
           {language === 'pt' ? 'Você dominou a lição' : 'You mastered the lesson'} <span className="text-afri-primary">"{activeLesson.title}"</span>
         </p>
         
-        <div className="grid grid-cols-2 gap-6 w-full max-w-md mb-12">
-           <div className="bg-white p-8 rounded-[2.5rem] shadow-heavy border border-white">
-             <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">{language === 'pt' ? 'Acertos' : 'Score'}</p>
-             <p className="text-4xl font-black text-green-600 tracking-tighter">{score}/{questions.length}</p>
+        <div className="grid grid-cols-2 gap-4 md:gap-6 w-full max-w-md mb-8 md:mb-12">
+           <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-heavy border border-white">
+             <p className="text-gray-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1 md:mb-2">{language === 'pt' ? 'Acertos' : 'Score'}</p>
+             <p className="text-3xl md:text-4xl font-black text-green-600 tracking-tighter">{score}/{questions.length}</p>
            </div>
-           <div className="bg-white p-8 rounded-[2.5rem] shadow-heavy border border-white">
-             <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">{language === 'pt' ? 'XP Ganho' : 'XP Earned'}</p>
-             <p className="text-4xl font-black text-afri-primary tracking-tighter">+{activeLesson.xp}</p>
+           <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-heavy border border-white">
+             <p className="text-gray-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1 md:mb-2">{language === 'pt' ? 'XP Ganho' : 'XP Earned'}</p>
+             <p className="text-3xl md:text-4xl font-black text-afri-primary tracking-tighter">+{activeLesson.xp}</p>
            </div>
         </div>
 
@@ -267,7 +267,7 @@ const LearnView: React.FC = () => {
 
   // 4. List View (Default)
   return (
-    <div className="bg-afri-warm/20 p-4 md:p-10 relative">
+    <div className="flex-1 overflow-y-auto pb-32 md:pb-10 bg-afri-warm/20 p-4 md:p-10 relative">
       <div className="max-w-4xl mx-auto">
         
         {/* Header Stats */}
@@ -314,7 +314,7 @@ const LearnView: React.FC = () => {
           <span className="text-xs font-bold text-afri-primary bg-afri-warm px-3 py-1 rounded-full border border-afri-primary/10">Level 12</span>
         </div>
 
-        <div className="space-y-8 pb-40">
+        <div className="space-y-8">
           {lessons.map((lesson, index) => (
             <div 
               key={lesson.id} 

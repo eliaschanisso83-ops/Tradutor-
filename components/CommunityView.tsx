@@ -119,7 +119,7 @@ const CommunityView: React.FC = () => {
       return () => {
         subscription.unsubscribe();
       };
-    } catch (e) {
+    } catch {
       console.log('Realtime subscription skipped');
     }
   }, []);
@@ -378,16 +378,16 @@ const CommunityView: React.FC = () => {
   };
 
   return (
-    <div className="bg-afri-warm/20 relative">
-      <div className="max-w-2xl mx-auto p-4 md:p-10 pb-40">
+    <div className="flex-1 overflow-y-auto pb-32 md:pb-10 bg-afri-warm/20 relative">
+      <div className="max-w-2xl mx-auto p-4 md:p-10">
         
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-afri-primary rounded-[1.5rem] text-white shadow-glow mb-4 rotate-3">
-            <Activity size={32} />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-afri-primary rounded-xl text-white shadow-glow mb-3 rotate-3">
+            <Activity size={24} />
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter leading-none">{t('community.title')}</h2>
-          <p className="text-gray-500 font-bold text-lg mt-2 tracking-tight">{t('community.desc')}</p>
+          <h2 className="text-2xl md:text-5xl font-black text-gray-900 tracking-tighter leading-none">{t('community.title')}</h2>
+          <p className="text-gray-500 font-bold text-base mt-2 tracking-tight">{t('community.desc')}</p>
         </div>
 
         {/* Custom Tabs */}

@@ -11,13 +11,12 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import DataDeletion from './components/DataDeletion';
 import { ViewState } from './types';
 import { Globe } from 'lucide-react';
-import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { UserProvider, useUser } from './contexts/UserContext';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('translate');
   const [route, setRoute] = useState<string>('/');
-  const { language, setLanguage } = useLanguage();
   const { user, setProfileOpen } = useUser();
 
   // Simple routing check
@@ -46,20 +45,16 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'pt' : 'en');
-  };
-
   return (
-    <div className="flex h-screen w-screen bg-gradient-animate relative overflow-hidden">
+    <div className="flex h-[100dvh] w-screen bg-gradient-animate relative overflow-hidden">
       <div className="bg-pattern" />
       
       <Navigation currentView={currentView} setView={setCurrentView} />
       <ProfileDialog />
 
-      <main className="flex-1 relative h-full w-full flex flex-col overflow-hidden">
+      <main className="flex-1 relative h-full w-full flex flex-col overflow-hidden pb-safe-bottom">
         {/* Mobile Header */}
-        <div className="md:hidden pt-safe-top px-6 py-4 flex items-center justify-between z-20 glass-dark text-white shadow-lg">
+        <div className="md:hidden pt-safe-top px-4 py-3 flex items-center justify-between z-20 glass-dark text-white shadow-lg">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-afri-primary rounded-lg shadow-glow">
               <Globe size={20} className="text-white" />
@@ -79,7 +74,7 @@ const AppContent: React.FC = () => {
         </div>
 
         {/* View Container */}
-        <div className="flex-1 w-full relative overflow-y-auto">
+        <div className="flex-1 w-full relative flex flex-col overflow-hidden">
           {renderView()}
         </div>
       </main>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { SUPPORTED_LANGUAGES, AD_CONFIG } from '../constants';
 import { translateText, translateImage, translateAudio, generateSpeech } from '../services/geminiService';
 import { Language } from '../types';
@@ -163,7 +163,7 @@ const TranslationView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col relative p-4 max-w-4xl mx-auto md:p-8">
+    <div className="flex-1 overflow-y-auto pb-32 md:pb-8 flex flex-col relative p-4 max-w-4xl mx-auto md:p-8">
       
       {/* Page Header */}
       <div className="mb-8 hidden md:block">
@@ -176,44 +176,46 @@ const TranslationView: React.FC = () => {
       </div>
 
       {/* Language Header */}
-      <div className="flex items-center justify-between gap-3 mb-8 z-10">
-        <div className="flex-1 bg-white shadow-soft rounded-3xl p-3 flex items-center gap-3 cursor-pointer transition-all hover:shadow-heavy hover:-translate-y-1 border border-gray-100">
-           <div className="w-12 h-12 rounded-2xl bg-afri-warm flex items-center justify-center text-3xl shadow-inner border border-afri-primary/5">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 mb-6 z-10">
+        <div className="flex-1 bg-white shadow-soft rounded-2xl p-2 md:p-2.5 flex items-center gap-3 cursor-pointer transition-all hover:shadow-heavy border border-gray-100">
+           <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-afri-warm flex items-center justify-center text-xl md:text-2xl shadow-inner border border-afri-primary/5">
              {sourceLang.flag}
            </div>
            <div className="flex-1 min-w-0">
-             <p className="text-[10px] font-bold text-afri-primary uppercase tracking-widest mb-0.5">From</p>
+             <p className="text-[8px] md:text-[9px] font-black text-afri-primary uppercase tracking-widest mb-0.5">From</p>
              <select 
                value={sourceLang.code}
                onChange={(e) => setSourceLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || sourceLang)}
-               className="bg-transparent font-black text-gray-900 text-sm md:text-lg outline-none w-full appearance-none cursor-pointer leading-none"
+               className="bg-transparent font-black text-gray-900 text-xs md:text-base outline-none w-full appearance-none cursor-pointer leading-none"
              >
                {SUPPORTED_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.name}</option>)}
              </select>
            </div>
         </div>
 
-        <button 
-          className="w-12 h-12 flex items-center justify-center bg-gray-900 shadow-heavy rounded-2xl text-white hover:bg-afri-primary hover:rotate-180 transition-all duration-500 group active:scale-90"
-          onClick={() => {
-            const temp = sourceLang;
-            setSourceLang(targetLang);
-            setTargetLang(temp);
-          }}
-        >
-          <ArrowRightLeft size={20} className="group-hover:scale-110 transition-transform" />
-        </button>
+        <div className="flex justify-center sm:block">
+          <button 
+            className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-900 shadow-heavy rounded-xl text-white hover:bg-afri-primary hover:rotate-180 transition-all duration-500 group active:scale-90 shrink-0"
+            onClick={() => {
+              const temp = sourceLang;
+              setSourceLang(targetLang);
+              setTargetLang(temp);
+            }}
+          >
+            <ArrowRightLeft size={16} className="group-hover:scale-110 transition-transform" />
+          </button>
+        </div>
 
-        <div className="flex-1 bg-afri-primary shadow-glow rounded-3xl p-3 flex items-center gap-3 cursor-pointer transition-all hover:shadow-heavy hover:-translate-y-1 border border-afri-primary/20">
-           <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-3xl shadow-inner backdrop-blur-sm border border-white/10">
+        <div className="flex-1 bg-afri-primary shadow-glow rounded-2xl p-2 md:p-2.5 flex items-center gap-3 cursor-pointer transition-all hover:shadow-heavy border border-afri-primary/20">
+           <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl md:text-2xl shadow-inner backdrop-blur-sm border border-white/10">
              {targetLang.flag}
            </div>
            <div className="flex-1 min-w-0">
-             <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-0.5">To</p>
+             <p className="text-[8px] md:text-[9px] font-black text-white/70 uppercase tracking-widest mb-0.5">To</p>
              <select 
                value={targetLang.code}
                onChange={(e) => setTargetLang(SUPPORTED_LANGUAGES.find(l => l.code === e.target.value) || targetLang)}
-               className="bg-transparent font-black text-white text-sm md:text-lg outline-none w-full appearance-none cursor-pointer leading-none"
+               className="bg-transparent font-black text-white text-xs md:text-base outline-none w-full appearance-none cursor-pointer leading-none"
              >
                {SUPPORTED_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.name}</option>)}
              </select>
@@ -222,20 +224,20 @@ const TranslationView: React.FC = () => {
       </div>
 
       {/* Main Input Card */}
-      <div className="bg-white rounded-[2.5rem] shadow-heavy overflow-hidden flex flex-col relative transition-all duration-500 border border-white group">
+      <div className="bg-white rounded-[2rem] shadow-heavy overflow-hidden flex flex-col relative transition-all duration-500 border border-white group">
         
-        <div className="p-8 relative min-h-[220px]">
+        <div className="p-6 relative min-h-[180px]">
           {mode === 'text' && (
             <>
               <textarea
-                className="w-full h-full min-h-[140px] resize-none outline-none text-2xl md:text-3xl font-bold text-gray-900 placeholder-gray-200 bg-transparent leading-tight tracking-tighter"
+                className="w-full h-full min-h-[120px] resize-none outline-none text-xl md:text-2xl font-bold text-gray-900 placeholder-gray-200 bg-transparent leading-tight tracking-tighter"
                 placeholder={t('translate.placeholder')}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
               />
               {inputText && (
-                <button onClick={() => setInputText('')} className="absolute top-6 right-6 p-2.5 bg-gray-100 rounded-2xl text-gray-400 hover:bg-afri-primary hover:text-white transition-all">
-                  <X size={18} />
+                <button onClick={() => setInputText('')} className="absolute top-4 right-4 p-2 bg-gray-100 rounded-xl text-gray-400 hover:bg-afri-primary hover:text-white transition-all">
+                  <X size={16} />
                 </button>
               )}
             </>
@@ -280,21 +282,21 @@ const TranslationView: React.FC = () => {
         </div>
 
         {/* Action Toolbar */}
-        <div className="px-8 py-5 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between backdrop-blur-md">
-           <div className="flex gap-3">
+        <div className="px-4 py-4 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between backdrop-blur-md">
+           <div className="flex gap-2">
              {(['text', 'voice', 'image'] as const).map((m) => (
                <button
                  key={m}
                  onClick={() => setMode(m)}
-                 className={`p-4 rounded-2xl transition-all relative group ${
+                 className={`p-3 rounded-xl transition-all relative group ${
                    mode === m 
-                     ? 'bg-white shadow-soft text-afri-primary scale-110' 
+                     ? 'bg-white shadow-soft text-afri-primary scale-105' 
                      : 'text-gray-400 hover:bg-white/50 hover:text-gray-600'
                  }`}
                >
-                 {m === 'text' && <Sparkles size={22} />}
-                 {m === 'voice' && <Mic size={22} />}
-                 {m === 'image' && <ImageIcon size={22} />}
+                 {m === 'text' && <Sparkles size={20} />}
+                 {m === 'voice' && <Mic size={20} />}
+                 {m === 'image' && <ImageIcon size={20} />}
                  {mode === m && (
                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-afri-primary rounded-full" />
                  )}
@@ -306,14 +308,14 @@ const TranslationView: React.FC = () => {
              <button 
                onClick={handleTranslateText}
                disabled={!inputText || loading}
-               className="bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-sm shadow-heavy hover:bg-afri-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 transition-all active:scale-95 group"
+               className="bg-gray-900 text-white px-5 py-3 rounded-xl font-black text-xs shadow-heavy hover:bg-afri-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all active:scale-95 group"
              >
                {loading ? (
-                 <Loader2 size={20} className="animate-spin" />
+                 <Loader2 size={16} className="animate-spin" />
                ) : (
                  <>
                    <span>{t('translate.translate_btn')}</span>
-                   <ArrowRightLeft size={18} className="group-hover:translate-x-1 transition-transform" />
+                   <ArrowRightLeft size={16} className="group-hover:translate-x-1 transition-transform" />
                  </>
                )}
              </button>
@@ -325,53 +327,53 @@ const TranslationView: React.FC = () => {
       {(result || loading) && (
         <div className="mt-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
            {loading ? (
-             <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-12 flex flex-col items-center justify-center text-center shadow-heavy h-64 border border-white">
-               <div className="relative mb-6">
+             <div className="bg-white/90 backdrop-blur-xl rounded-[2rem] p-8 flex flex-col items-center justify-center text-center shadow-heavy h-56 border border-white">
+               <div className="relative mb-4">
                  <div className="absolute inset-0 bg-afri-primary/20 rounded-full animate-ping"></div>
-                 <div className="relative w-16 h-16 bg-afri-primary rounded-full flex items-center justify-center shadow-glow">
-                   <Loader2 size={32} className="text-white animate-spin" />
+                 <div className="relative w-12 h-12 bg-afri-primary rounded-full flex items-center justify-center shadow-glow">
+                   <Loader2 size={24} className="text-white animate-spin" />
                  </div>
                </div>
-               <p className="text-gray-900 font-black text-xl tracking-tight">{t('translate.thinking')}</p>
-               <p className="text-gray-400 text-sm mt-2 font-medium">Gemini AI is processing your request...</p>
+               <p className="text-gray-900 font-black text-lg tracking-tight">{t('translate.thinking')}</p>
+               <p className="text-gray-400 text-xs mt-1 font-medium">Gemini AI is processing your request...</p>
              </div>
            ) : result ? (
-             <div className={`bg-afri-secondary text-white rounded-[2.5rem] p-10 shadow-heavy relative overflow-hidden group transition-all border-4 border-white/20 ${result.error ? 'bg-afri-accent' : ''}`}>
+             <div className={`bg-afri-secondary text-white rounded-[2rem] p-6 shadow-heavy relative overflow-hidden group transition-all border-4 border-white/20 ${result.error ? 'bg-afri-accent' : ''}`}>
                
                {/* Decorative Pattern */}
-               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
+               <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
 
                {result.error && (
-                 <div className="absolute top-6 right-6 text-white/30">
-                    <AlertTriangle size={32} />
+                 <div className="absolute top-4 right-4 text-white/30">
+                    <AlertTriangle size={24} />
                  </div>
                )}
 
-               <div className="flex justify-between items-center mb-8 relative z-10">
-                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-2xl shadow-inner border border-white/10">
+               <div className="flex justify-between items-center mb-6 relative z-10">
+                 <div className="flex items-center gap-2">
+                   <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-xl shadow-inner border border-white/10">
                      {targetLang.flag}
                    </div>
-                   <span className="text-sm font-black tracking-widest uppercase text-white/80">
+                   <span className="text-[10px] font-black tracking-widest uppercase text-white/80">
                      {result.error ? 'Aviso' : targetLang.name}
                    </span>
                  </div>
                  
-                 <div className="flex gap-3">
+                 <div className="flex gap-2">
                    {!result.error && (
                      <>
                        <button 
                          onClick={handleSpeak} 
                          disabled={isPlaying} 
-                         className="w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-2xl backdrop-blur-md transition-all active:scale-90 border border-white/10"
+                         className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all active:scale-90 border border-white/10"
                        >
-                         {isPlaying ? <Loader2 size={22} className="animate-spin" /> : <Volume2 size={22} />}
+                         {isPlaying ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
                        </button>
                        <button 
                          onClick={handleCopy} 
-                         className="w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-2xl backdrop-blur-md transition-all active:scale-90 border border-white/10"
+                         className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all active:scale-90 border border-white/10"
                        >
-                         {copied ? <Check size={22} /> : <Copy size={22} />}
+                         {copied ? <Check size={18} /> : <Copy size={18} />}
                        </button>
                      </>
                    )}
@@ -379,28 +381,28 @@ const TranslationView: React.FC = () => {
                </div>
 
                {result.error ? (
-                  <div className="text-center py-6">
-                    <p className="text-2xl font-black mb-4 tracking-tight">{result.error}</p>
+                  <div className="text-center py-4">
+                    <p className="text-xl font-black mb-4 tracking-tight">{result.error}</p>
                     <button 
                       onClick={handleTranslateText} 
-                      className="bg-white text-afri-accent px-8 py-3 rounded-2xl text-sm font-black flex items-center gap-3 mx-auto hover:bg-gray-100 transition-all shadow-lg active:scale-95"
+                      className="bg-white text-afri-accent px-6 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 mx-auto hover:bg-gray-100 transition-all shadow-lg active:scale-95"
                     >
-                      <RefreshCw size={18} /> Tentar Novamente
+                      <RefreshCw size={16} /> Tentar Novamente
                     </button>
                   </div>
                ) : (
                  <>
-                   <p className="text-3xl md:text-5xl font-black leading-[1.1] tracking-tighter relative z-10 break-words mb-8">
+                   <p className="text-2xl md:text-4xl font-black leading-[1.1] tracking-tighter relative z-10 break-words mb-6">
                      {result.translated}
                    </p>
                    
                    {result.pronunciation && (
-                     <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
-                         <div className="flex items-center gap-2 mb-2">
-                           <Volume2 size={14} className="text-white/50" />
-                           <p className="text-white/50 text-[10px] font-black uppercase tracking-widest">{t('translate.pronunciation')}</p>
+                     <div className="mt-6 pt-4 border-t border-white/10 relative z-10">
+                         <div className="flex items-center gap-2 mb-1">
+                           <Volume2 size={12} className="text-white/50" />
+                           <p className="text-white/50 text-[9px] font-black uppercase tracking-widest">{t('translate.pronunciation')}</p>
                          </div>
-                         <p className="font-mono text-white text-xl italic tracking-wide bg-white/5 p-4 rounded-2xl border border-white/5">
+                         <p className="font-mono text-white text-lg italic tracking-wide bg-white/5 p-3 rounded-xl border border-white/5">
                            {result.pronunciation}
                          </p>
                      </div>
@@ -444,7 +446,6 @@ const TranslationView: React.FC = () => {
       </div>
       
       {/* Spacer for Floating Dock */}
-      <div className="h-28 md:h-0"></div>
     </div>
   );
 };

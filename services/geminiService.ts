@@ -1,4 +1,4 @@
-import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 
 // Ensure the API Key is valid string before initializing
 const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
@@ -16,17 +16,17 @@ const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 const extractJSON = (text: string): any => {
   try {
     return JSON.parse(text);
-  } catch (e) {
+  } catch {
     const match = text.match(/\{[\s\S]*\}/);
     if (match) {
-      try { return JSON.parse(match[0]); } catch (e2) {
-        console.warn("Failed to parse matched JSON object", e2);
+      try { return JSON.parse(match[0]); } catch {
+        console.warn("Failed to parse matched JSON object");
       }
     }
     const arrayMatch = text.match(/\[[\s\S]*\]/);
     if (arrayMatch) {
-      try { return JSON.parse(arrayMatch[0]); } catch (e3) {
-        console.warn("Failed to parse matched JSON array", e3);
+      try { return JSON.parse(arrayMatch[0]); } catch {
+        console.warn("Failed to parse matched JSON array");
       }
     }
     return null;
@@ -94,7 +94,7 @@ export const translateImage = async (base64Image: string, mimeType: string, targ
       },
     });
     return response.text || "Sem resultado.";
-  } catch (error: any) { return formatError(error); }
+  } catch { return "Erro de conexão. Verifique sua internet."; }
 };
 
 export const translateAudio = async (base64Audio: string, mimeType: string, targetLang: string): Promise<any> => {
@@ -111,7 +111,7 @@ export const translateAudio = async (base64Audio: string, mimeType: string, targ
     });
     const parsed = extractJSON(response.text || "{}");
     return { transcription: parsed?.transcription || "...", translation: parsed?.translation || "..." };
-  } catch (error: any) { return { transcription: "Erro", translation: formatError(error) }; }
+  } catch { return { transcription: "Erro", translation: "Erro de conexão" }; }
 };
 
 export const chatWithTutor = async (
@@ -260,5 +260,5 @@ export const generateSpeech = async (text: string): Promise<string | null> => {
       },
     });
     return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
-  } catch (error) { return null; }
+  } catch { return null; }
 };

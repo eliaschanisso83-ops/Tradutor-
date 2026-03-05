@@ -14,8 +14,6 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'afrilingo_user_id';
 
-const DEFAULT_AVATARS = ['🦁', '🐘', '🦒', '🦓', '🌍', '🥁', '🌞', '💎'];
-
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +33,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // 2. Try to fetch profile from Supabase
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)

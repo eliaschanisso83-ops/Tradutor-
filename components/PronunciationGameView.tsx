@@ -114,17 +114,17 @@ const PronunciationGameView: React.FC = () => {
           : 'Choose a language and practice your speaking by pronouncing words correctly.'}
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
         {SUPPORTED_LANGUAGES.filter(l => PRONUNCIATION_GAME_DATA[l.code]).map(lang => (
           <button
             key={lang.code}
             onClick={() => startGame(lang)}
-            className="bg-white p-6 rounded-[2rem] shadow-soft border-2 border-transparent hover:border-afri-primary transition-all flex items-center gap-4 group hover:shadow-heavy"
+            className="bg-white p-4 md:p-6 rounded-2xl md:rounded-[2rem] shadow-soft border-2 border-transparent hover:border-afri-primary transition-all flex items-center gap-3 md:gap-4 group hover:shadow-heavy"
           >
-            <div className="text-4xl group-hover:scale-110 transition-transform">{lang.flag}</div>
+            <div className="text-3xl md:text-4xl group-hover:scale-110 transition-transform">{lang.flag}</div>
             <div className="text-left">
-              <h3 className="font-black text-gray-900 text-lg">{lang.name}</h3>
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+              <h3 className="font-black text-gray-900 text-base md:text-lg">{lang.name}</h3>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                 {PRONUNCIATION_GAME_DATA[lang.code].length} {language === 'pt' ? 'Palavras' : 'Words'}
               </p>
             </div>
@@ -150,13 +150,13 @@ const PronunciationGameView: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white w-full max-w-lg rounded-[3rem] p-12 shadow-heavy border border-white relative overflow-hidden mb-10">
+        <div className="bg-white w-full max-w-lg rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-12 shadow-heavy border border-white relative overflow-hidden mb-8 md:mb-10">
           <div className="absolute top-0 right-0 w-32 h-32 bg-afri-primary/5 rounded-full -mr-16 -mt-16"></div>
           
-          <h3 className="text-5xl md:text-7xl font-black text-gray-900 mb-4 tracking-tighter">
+          <h3 className="text-4xl md:text-7xl font-black text-gray-900 mb-2 md:mb-4 tracking-tighter">
             {currentWord.word}
           </h3>
-          <p className="text-xl text-gray-400 font-medium italic mb-8">
+          <p className="text-lg md:text-xl text-gray-400 font-medium italic mb-6 md:mb-8">
             {currentWord.translation}
           </p>
 
@@ -252,7 +252,7 @@ const PronunciationGameView: React.FC = () => {
   );
 
   return (
-    <div className="bg-afri-warm/20 p-4 md:p-10">
+    <div className="flex-1 overflow-y-auto pb-32 md:pb-10 bg-afri-warm/20 p-4 md:p-10">
       <div className="max-w-4xl mx-auto">
         {gameState === 'selection' && renderSelection()}
         {gameState === 'playing' && renderPlaying()}

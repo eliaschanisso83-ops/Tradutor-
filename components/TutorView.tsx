@@ -144,17 +144,17 @@ const TutorView: React.FC = () => {
   // --- RENDER MENU MODE ---
   if (mode === 'menu') {
     return (
-      <div className="bg-afri-warm/30 p-4 md:p-10">
+      <div className="flex-1 overflow-y-auto pb-32 md:pb-10 bg-afri-warm/30 p-4 md:p-10">
         <div className="max-w-4xl mx-auto">
-          <header className="mb-12">
+          <header className="mb-8 md:mb-12">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-afri-primary rounded-2xl flex items-center justify-center text-white shadow-glow">
-                <GraduationCap size={28} />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-afri-primary rounded-2xl flex items-center justify-center text-white shadow-glow">
+                <GraduationCap size={24} className="md:w-7 md:h-7" />
               </div>
-              <span className="text-xs font-black text-afri-primary uppercase tracking-[0.3em]">AI Learning</span>
+              <span className="text-[10px] md:text-xs font-black text-afri-primary uppercase tracking-[0.3em]">AI Learning</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter mb-3">{t('tutor.title')}</h2>
-            <p className="text-gray-500 font-medium text-lg tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter mb-2 md:mb-3">{t('tutor.title')}</h2>
+            <p className="text-gray-500 font-medium text-base md:text-lg tracking-tight">
               {language === 'pt' ? 'Pratique conversação em tempo real com seu tutor pessoal.' : 'Practice real-time conversation with your personal AI tutor.'}
             </p>
           </header>
@@ -163,19 +163,19 @@ const TutorView: React.FC = () => {
             {/* Free Chat Option */}
             <div 
               onClick={() => startChat()}
-              className="md:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-soft border-2 border-transparent hover:border-afri-primary cursor-pointer transition-all group flex items-center gap-6 hover:shadow-heavy hover:-translate-y-1"
+              className="md:col-span-2 bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-soft border-2 border-transparent hover:border-afri-primary cursor-pointer transition-all group flex items-center gap-4 md:gap-6 hover:shadow-heavy hover:-translate-y-1"
             >
-               <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center text-4xl group-hover:scale-110 transition-transform shadow-inner">
-                 <MessageCircle size={40} />
+               <div className="w-16 h-16 md:w-20 md:h-20 bg-blue-50 text-blue-600 rounded-2xl md:rounded-3xl flex items-center justify-center text-3xl md:text-4xl group-hover:scale-110 transition-transform shadow-inner">
+                 <MessageCircle size={32} className="md:w-10 md:h-10" />
                </div>
                <div className="flex-1">
                  <div className="flex items-center gap-2 mb-1">
-                   <h3 className="text-2xl font-black text-gray-900 tracking-tight">{language === 'pt' ? 'Chat Livre' : 'Free Chat'}</h3>
-                   <span className="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Recomendado</span>
+                   <h3 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">{language === 'pt' ? 'Chat Livre' : 'Free Chat'}</h3>
+                   <span className="bg-blue-100 text-blue-700 text-[8px] md:text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Recomendado</span>
                  </div>
-                 <p className="text-gray-500 font-medium leading-tight">{language === 'pt' ? 'Converse sobre qualquer assunto com o Tutor e receba correções instantâneas.' : 'Talk about anything with your AI Tutor and get instant corrections.'}</p>
+                 <p className="text-gray-500 font-medium leading-tight text-sm md:text-base">{language === 'pt' ? 'Converse sobre qualquer assunto com o Tutor e receba correções instantâneas.' : 'Talk about anything with your AI Tutor and get instant corrections.'}</p>
                </div>
-               <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-afri-primary group-hover:text-white transition-all">
+               <div className="hidden sm:flex w-12 h-12 rounded-full bg-gray-50 items-center justify-center text-gray-300 group-hover:bg-afri-primary group-hover:text-white transition-all">
                  <Send size={20} />
                </div>
             </div>
@@ -188,13 +188,13 @@ const TutorView: React.FC = () => {
               <div 
                 key={sc.id}
                 onClick={() => startChat(sc)}
-                className="bg-white p-8 rounded-[2.5rem] shadow-soft border-2 border-transparent hover:border-afri-primary cursor-pointer transition-all group relative overflow-hidden flex flex-col hover:shadow-heavy hover:-translate-y-1"
+                className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-soft border-2 border-transparent hover:border-afri-primary cursor-pointer transition-all group relative overflow-hidden flex flex-col hover:shadow-heavy hover:-translate-y-1"
               >
-                <div className="flex items-start justify-between mb-6 relative z-10">
-                   <div className="w-16 h-16 bg-afri-warm text-4xl flex items-center justify-center rounded-2xl shadow-inner border border-afri-primary/5 group-hover:scale-110 transition-transform">
+                <div className="flex items-start justify-between mb-4 md:mb-6 relative z-10">
+                   <div className="w-14 h-14 md:w-16 md:h-16 bg-afri-warm text-3xl md:text-4xl flex items-center justify-center rounded-xl md:rounded-2xl shadow-inner border border-afri-primary/5 group-hover:scale-110 transition-transform">
                      {sc.emoji}
                    </div>
-                   <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${
+                   <span className={`text-[9px] md:text-[10px] font-black px-2 md:px-3 py-1 rounded-full uppercase tracking-widest ${
                      sc.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
                      sc.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
                      'bg-red-100 text-red-700'
@@ -202,12 +202,12 @@ const TutorView: React.FC = () => {
                      {sc.difficulty}
                    </span>
                 </div>
-                <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tight relative z-10">{sc.title}</h3>
-                <p className="text-gray-500 font-medium text-sm leading-relaxed relative z-10 flex-1">{sc.description}</p>
+                <h3 className="text-lg md:text-xl font-black text-gray-900 mb-1 md:mb-2 tracking-tight relative z-10">{sc.title}</h3>
+                <p className="text-gray-500 font-medium text-xs md:text-sm leading-relaxed relative z-10 flex-1">{sc.description}</p>
                 
-                <div className="mt-6 flex items-center text-afri-primary font-black text-xs uppercase tracking-widest gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 relative z-10">
-                  <span>Praticar Agora</span>
-                  <Send size={14} />
+                <div className="mt-4 md:mt-6 flex items-center text-afri-primary font-black text-[10px] md:text-xs uppercase tracking-widest gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 relative z-10">
+                   <span>{language === 'pt' ? 'Praticar Agora' : 'Practice Now'}</span>
+                   <Send size={12} className="md:w-3.5 md:h-3.5" />
                 </div>
 
                 <div className="absolute right-0 bottom-0 opacity-[0.03] text-9xl transform translate-x-6 translate-y-6 rotate-12 group-hover:scale-125 group-hover:opacity-[0.07] transition-all duration-700">
@@ -216,7 +216,6 @@ const TutorView: React.FC = () => {
               </div>
             ))}
           </div>
-          <div className="h-32"></div>
         </div>
       </div>
     );
@@ -224,27 +223,27 @@ const TutorView: React.FC = () => {
 
   // --- RENDER CHAT MODE ---
   return (
-    <div className="flex flex-col h-full bg-white max-w-4xl mx-auto w-full shadow-heavy relative md:rounded-t-[3rem] overflow-hidden border-x border-gray-100">
-      <div className="bg-white/80 backdrop-blur-xl p-4 border-b flex items-center justify-between z-20 shadow-sm sticky top-0">
-        <div className="flex items-center gap-4">
-          <button onClick={handleBackToMenu} className="w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-xl text-gray-600 transition-all active:scale-90">
-            <ArrowLeft size={20} />
+    <div className="flex flex-col h-full pb-24 md:pb-0 bg-white max-w-4xl mx-auto w-full shadow-heavy relative md:rounded-t-[3rem] overflow-hidden border-x border-gray-100">
+      <div className="bg-white/80 backdrop-blur-xl p-3 md:p-4 border-b flex items-center justify-between z-20 shadow-sm sticky top-0">
+        <div className="flex items-center gap-3 md:gap-4">
+          <button onClick={handleBackToMenu} className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-xl text-gray-600 transition-all active:scale-90">
+            <ArrowLeft size={18} className="md:w-5 md:h-5" />
           </button>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-afri-primary to-afri-accent flex items-center justify-center text-white text-2xl shadow-glow rotate-3">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-tr from-afri-primary to-afri-accent flex items-center justify-center text-white text-xl md:text-2xl shadow-glow rotate-3">
                 {activeScenario ? activeScenario.emoji : '🧙🏾‍♂️'}
               </div>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 md:w-4 md:h-4 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>
             </div>
             <div>
-              <h2 className="font-black text-gray-900 text-base md:text-lg tracking-tight leading-none">
+              <h2 className="font-black text-gray-900 text-sm md:text-lg tracking-tight leading-none">
                 {activeScenario ? activeScenario.title : t('tutor.title')}
               </h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                <p className="text-[10px] font-black text-afri-primary uppercase tracking-widest">
+              <div className="flex items-center gap-1.5 md:gap-2 mt-1">
+                <span className="w-1 h-1 md:w-1.5 md:h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                <p className="text-[8px] md:text-[10px] font-black text-afri-primary uppercase tracking-widest">
                   {activeScenario ? 'Scenario Mode' : 'Online Tutor'}
                 </p>
               </div>
@@ -253,35 +252,35 @@ const TutorView: React.FC = () => {
         </div>
         <button 
           onClick={() => startChat(activeScenario || undefined)} 
-          className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-afri-primary bg-gray-50 hover:bg-afri-warm rounded-xl transition-all active:rotate-180 duration-500"
+          className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-gray-400 hover:text-afri-primary bg-gray-50 hover:bg-afri-warm rounded-xl transition-all active:rotate-180 duration-500"
           title="Reiniciar"
         >
-          <RefreshCcw size={18} />
+          <RefreshCcw size={16} className="md:w-4.5 md:h-4.5" />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-gray-50/50">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 bg-gray-50/50">
         {messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}
           >
             <div
-              className={`max-w-[85%] p-5 rounded-[2rem] shadow-soft relative border ${
+              className={`max-w-[88%] md:max-w-[85%] p-4 md:p-5 rounded-2xl md:rounded-[2rem] shadow-soft relative border ${
                 msg.role === 'user'
                   ? 'bg-gray-900 text-white rounded-br-none border-gray-800'
                   : 'bg-white text-gray-900 rounded-bl-none border-gray-100'
               }`}
             >
-              <p className="whitespace-pre-wrap leading-relaxed text-base font-medium tracking-tight">
+              <p className="whitespace-pre-wrap leading-relaxed text-sm md:text-base font-medium tracking-tight">
                 {msg.text}
               </p>
-              <div className={`text-[9px] font-bold uppercase tracking-widest mt-2 opacity-50 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+              <div className={`text-[8px] md:text-[9px] font-bold uppercase tracking-widest mt-2 opacity-50 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                 {msg.role === 'user' ? 'You' : 'Tutor'}
               </div>
               {msg.text.includes("Erro") && (
-                 <button onClick={() => handleSend(messages[messages.length-2].text)} className="mt-3 text-xs font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline">
-                   <RefreshCcw size={12} /> Tentar novamente
+                 <button onClick={() => handleSend(messages[messages.length-2].text)} className="mt-3 text-[10px] font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline">
+                   <RefreshCcw size={10} /> Tentar novamente
                  </button>
               )}
             </div>
@@ -289,7 +288,7 @@ const TutorView: React.FC = () => {
         ))}
         {isTyping && (
           <div className="flex justify-start animate-in fade-in duration-300">
-            <div className="bg-white p-5 rounded-[2rem] rounded-bl-none shadow-soft border border-gray-100 flex gap-1.5 items-center">
+            <div className="bg-white p-4 md:p-5 rounded-2xl md:rounded-[2rem] rounded-bl-none shadow-soft border border-gray-100 flex gap-1.5 items-center">
               <span className="w-1.5 h-1.5 bg-afri-primary rounded-full animate-bounce"></span>
               <span className="w-1.5 h-1.5 bg-afri-primary rounded-full animate-bounce delay-150"></span>
               <span className="w-1.5 h-1.5 bg-afri-primary rounded-full animate-bounce delay-300"></span>
@@ -300,8 +299,8 @@ const TutorView: React.FC = () => {
       </div>
 
       {/* Input Area */}
-      <div className="p-6 bg-white border-t pb-32 md:pb-8 transition-all backdrop-blur-xl bg-white/90">
-        <div className="flex gap-3 max-w-3xl mx-auto">
+      <div className="p-3 md:p-6 bg-white border-t transition-all backdrop-blur-xl bg-white/90">
+        <div className="flex gap-2 md:gap-3 max-w-3xl mx-auto">
           <div className="flex-1 relative">
             <input
               type="text"
@@ -309,15 +308,15 @@ const TutorView: React.FC = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder={activeScenario ? (language === 'pt' ? 'Responda ao personagem...' : 'Reply to the character...') : t('tutor.type_placeholder')}
-              className="w-full bg-gray-50 border-gray-100 focus:bg-white border-2 focus:border-afri-primary rounded-2xl px-6 py-4 focus:ring-0 outline-none transition-all font-medium text-gray-900 placeholder-gray-300"
+              className="w-full bg-gray-50 border-gray-100 focus:bg-white border-2 focus:border-afri-primary rounded-xl md:rounded-2xl px-4 md:px-6 py-2.5 md:py-4 focus:ring-0 outline-none transition-all font-medium text-gray-900 placeholder-gray-300 text-sm md:text-base"
             />
           </div>
           <button
             onClick={() => handleSend()}
             disabled={!input.trim() || isTyping}
-            className="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center hover:bg-afri-primary disabled:opacity-50 shadow-heavy hover:scale-105 transition-all active:scale-95 group"
+            className="w-11 h-11 md:w-14 md:h-14 bg-gray-900 text-white rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-afri-primary disabled:opacity-50 shadow-heavy hover:scale-105 transition-all active:scale-95 group shrink-0"
           >
-            <Send size={22} className={`${isTyping ? "opacity-0" : "group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"}`} />
+            <Send size={18} className={`md:w-5 md:h-5 ${isTyping ? "opacity-0" : "group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"}`} />
           </button>
         </div>
       </div>

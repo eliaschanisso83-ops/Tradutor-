@@ -25,7 +25,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
   return (
     <>
       {/* Mobile Floating Dock */}
-      <nav className="fixed bottom-6 left-4 right-4 h-20 glass rounded-3xl shadow-heavy flex items-center justify-around px-2 z-50 md:hidden animate-in slide-in-from-bottom-10 duration-500 border border-white/40">
+      <nav className="fixed bottom-4 left-2 right-2 h-16 glass rounded-2xl shadow-heavy flex items-center justify-around px-1 z-50 md:hidden animate-in slide-in-from-bottom-10 duration-500 border border-white/40">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
@@ -33,15 +33,15 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
             <button
               key={item.id}
               onClick={() => setView(item.id as ViewState)}
-              className={`flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 relative ${
+              className={`flex flex-col items-center justify-center w-11 h-11 rounded-xl transition-all duration-300 relative ${
                 isActive 
-                  ? 'text-white -translate-y-6 bg-afri-primary shadow-glow scale-110 ring-4 ring-white' 
+                  ? 'text-white -translate-y-4 bg-afri-primary shadow-glow scale-110 ring-2 ring-white' 
                   : 'text-gray-400 hover:text-afri-primary'
               }`}
             >
-              <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+              <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
               {isActive && (
-                <span className="absolute -bottom-6 text-[10px] font-bold text-afri-primary tracking-wide animate-in fade-in slide-in-from-top-2 duration-300">
+                <span className="absolute -bottom-5 text-[9px] font-bold text-afri-primary tracking-tight animate-in fade-in slide-in-from-top-2 duration-300 whitespace-nowrap">
                   {item.label}
                 </span>
               )}

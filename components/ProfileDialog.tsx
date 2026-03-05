@@ -68,38 +68,38 @@ const ProfileDialog: React.FC = () => {
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-xl" onClick={() => setProfileOpen(false)}></div>
       
-      <div className="bg-white rounded-[3rem] w-full max-w-md relative z-10 shadow-heavy overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] border border-white">
-        <div className="p-8 overflow-y-auto no-scrollbar">
-          <div className="flex justify-between items-center mb-10">
+      <div className="bg-white rounded-[2rem] md:rounded-[3rem] w-full max-w-md relative z-10 shadow-heavy overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] border border-white">
+        <div className="p-6 md:p-8 overflow-y-auto no-scrollbar">
+          <div className="flex justify-between items-center mb-6 md:mb-10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-afri-primary rounded-xl flex items-center justify-center text-white shadow-glow rotate-3">
-                <User size={20} />
+              <div className="w-9 h-9 md:w-10 md:h-10 bg-afri-primary rounded-xl flex items-center justify-center text-white shadow-glow rotate-3">
+                <User size={18} className="md:w-5 md:h-5" />
               </div>
-              <h2 className="text-2xl font-black text-gray-900 tracking-tighter leading-none">{t('profile.title')}</h2>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter leading-none">{t('profile.title')}</h2>
             </div>
             <button 
               onClick={() => setProfileOpen(false)} 
-              className="w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-xl text-gray-400 transition-all active:scale-90"
+              className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-xl text-gray-400 transition-all active:scale-90"
             >
-              <X size={20} />
+              <X size={18} className="md:w-5 md:h-5" />
             </button>
           </div>
 
           {/* Avatar Selection */}
-          <div className="flex flex-col items-center mb-10">
-            <div className="relative mb-6">
+          <div className="flex flex-col items-center mb-8 md:mb-10">
+            <div className="relative mb-4 md:mb-6">
               <div className="absolute inset-0 bg-afri-primary/10 rounded-full animate-pulse scale-110"></div>
-              <div className="relative w-28 h-28 bg-afri-warm rounded-full flex items-center justify-center text-6xl border-4 border-white shadow-heavy rotate-3">
+              <div className="relative w-24 h-24 md:w-28 md:h-28 bg-afri-warm rounded-full flex items-center justify-center text-5xl md:text-6xl border-4 border-white shadow-heavy rotate-3">
                 {selectedAvatar}
               </div>
             </div>
             
-            <div className="grid grid-cols-6 gap-3 p-4 bg-gray-50 rounded-[2rem] border border-gray-100 shadow-inner">
+            <div className="grid grid-cols-6 gap-2 md:gap-3 p-3 md:p-4 bg-gray-50 rounded-[1.5rem] md:rounded-[2rem] border border-gray-100 shadow-inner">
               {AVATARS.map(av => (
                 <button
                   key={av}
                   onClick={() => setSelectedAvatar(av)}
-                  className={`w-10 h-10 flex items-center justify-center text-xl rounded-xl transition-all duration-300 ${
+                  className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-lg md:text-xl rounded-xl transition-all duration-300 ${
                     selectedAvatar === av 
                     ? 'bg-afri-primary text-white scale-110 shadow-glow rotate-6' 
                     : 'bg-white hover:bg-gray-100 text-gray-400 border border-gray-100'
@@ -114,41 +114,41 @@ const ProfileDialog: React.FC = () => {
           <div className="space-y-6">
             {/* Username Input */}
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">{t('profile.display_name')}</label>
+              <label className="block text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 md:mb-2 px-1">{t('profile.display_name')}</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Ex: João"
-                className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-afri-primary/10 focus:border-afri-primary transition-all font-bold text-gray-900 text-lg shadow-inner"
+                className="w-full bg-gray-50 border border-gray-100 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none focus:ring-4 focus:ring-afri-primary/10 focus:border-afri-primary transition-all font-bold text-gray-900 text-base md:text-lg shadow-inner"
               />
             </div>
 
             {/* Language Selection */}
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">{t('profile.app_language')}</label>
-              <div className="flex gap-4">
+              <label className="block text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 md:mb-2 px-1">{t('profile.app_language')}</label>
+              <div className="flex gap-3 md:gap-4">
                 <button 
                   onClick={() => setSelectedLang('pt')}
-                  className={`flex-1 py-4 px-2 rounded-2xl border-2 flex items-center justify-center gap-3 transition-all duration-300 ${
+                  className={`flex-1 py-3 md:py-4 px-2 rounded-xl md:rounded-2xl border-2 flex items-center justify-center gap-2 md:gap-3 transition-all duration-300 ${
                     selectedLang === 'pt' 
                     ? 'border-afri-primary bg-afri-warm text-afri-primary font-black shadow-soft scale-[1.02]' 
                     : 'border-gray-100 bg-gray-50 text-gray-400 hover:bg-gray-100'
                   }`}
                 >
-                  <span className="text-xl">🇵🇹</span> 
-                  <span className="text-sm uppercase tracking-widest">Português</span>
+                  <span className="text-lg md:text-xl">🇵🇹</span> 
+                  <span className="text-[10px] md:text-sm uppercase tracking-widest">Português</span>
                 </button>
                 <button 
                   onClick={() => setSelectedLang('en')}
-                  className={`flex-1 py-4 px-2 rounded-2xl border-2 flex items-center justify-center gap-3 transition-all duration-300 ${
+                  className={`flex-1 py-3 md:py-4 px-2 rounded-xl md:rounded-2xl border-2 flex items-center justify-center gap-2 md:gap-3 transition-all duration-300 ${
                     selectedLang === 'en' 
                     ? 'border-afri-primary bg-afri-warm text-afri-primary font-black shadow-soft scale-[1.02]' 
                     : 'border-gray-100 bg-gray-50 text-gray-400 hover:bg-gray-100'
                   }`}
                 >
-                  <span className="text-xl">🇺🇸</span> 
-                  <span className="text-sm uppercase tracking-widest">English</span>
+                  <span className="text-lg md:text-xl">🇺🇸</span> 
+                  <span className="text-[10px] md:text-sm uppercase tracking-widest">English</span>
                 </button>
               </div>
             </div>
@@ -157,9 +157,9 @@ const ProfileDialog: React.FC = () => {
             <button
               onClick={handleSave}
               disabled={!username.trim() || isSaving}
-              className="w-full bg-gray-900 text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 hover:bg-afri-primary transition-all disabled:opacity-50 shadow-heavy active:scale-95 text-lg mt-4"
+              className="w-full bg-gray-900 text-white font-black py-4 md:py-5 rounded-xl md:rounded-2xl flex items-center justify-center gap-3 hover:bg-afri-primary transition-all disabled:opacity-50 shadow-heavy active:scale-95 text-base md:text-lg mt-2 md:mt-4"
             >
-              {isSaving ? <Loader2 size={24} className="animate-spin" /> : <Save size={24} />}
+              {isSaving ? <Loader2 size={20} className="animate-spin md:w-6 md:h-6" /> : <Save size={20} className="md:w-6 md:h-6" />}
               <span>{t('profile.save')}</span>
             </button>
             
