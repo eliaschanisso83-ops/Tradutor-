@@ -1,14 +1,15 @@
 import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 
 // Ensure the API Key is valid string before initializing
-const apiKey = process.env.API_KEY;
+const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
 const isValidKey = apiKey && apiKey.length > 10 && apiKey !== 'undefined';
 
-// Initialization strictly using process.env.API_KEY
+// Initialization strictly using process.env.GEMINI_API_KEY or process.env.API_KEY
 const ai = new GoogleGenAI({ apiKey: isValidKey ? apiKey : 'MISSING_KEY' });
 
-// SWITCHED MODEL: 'gemini-flash-latest' for better stability
-const MULTIMODAL_MODEL = 'gemini-flash-latest';
+// RECOMMENDED MODELS
+const TEXT_MODEL = 'gemini-3-flash-preview';
+const MULTIMODAL_MODEL = 'gemini-3-flash-preview';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 
 // Robust JSON extractor
@@ -49,7 +50,10 @@ export const translateText = async (
   sourceLang: string,
   targetLang: string
 ): Promise<{ translated: string; pronunciation: string; error?: string }> => {
-  if (!isValidKey) return { translated: "Erro Config", pronunciation: "", error: "API Key ausente" };
+  if (!isValidKey) {
+    console.error("Gemini API Key is missing or invalid");
+    return { translated: "Erro Config", pronunciation: "", error: "API Key ausente ou inválida" };
+  }
 
   try {
     const prompt = `Translate this text from ${sourceLang} to ${targetLang}.
@@ -57,16 +61,22 @@ export const translateText = async (
     Output ONLY JSON: {"translated": "...", "pronunciation": "..."}`;
 
     const response = await ai.models.generateContent({
-      model: MULTIMODAL_MODEL,
-      contents: { parts: [{ text: prompt }] },
+      model: TEXT_MODEL,
+      contents: prompt,
     });
 
-    const parsed = extractJSON(response.text || "{}");
+    const textResponse = response.text;
+    if (!textResponse) {
+      throw new Error("Modelo retornou resposta vazia");
+    }
+
+    const parsed = extractJSON(textResponse);
     return { 
-      translated: parsed?.translated || response.text, 
+      translated: parsed?.translated || textResponse, 
       pronunciation: parsed?.pronunciation || '' 
     };
   } catch (error: any) {
+    console.error("Translation Error:", error);
     return { translated: "Erro", pronunciation: "", error: formatError(error) };
   }
 };
