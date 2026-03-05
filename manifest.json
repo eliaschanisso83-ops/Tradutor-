@@ -39,5 +39,11 @@
       "form_factor": "wide",
       "label": "Chat with AI Tutor"
     }
+  ],
+  "related_applications": [
+    {
+      "platform": "windows",
+      "url": "https://www.microsoft.com/store/apps/9NBLGGH4LS1F"
+    }
   ]
 }
